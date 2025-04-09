@@ -1,0 +1,48 @@
+Key Observations:
+Your datasets appear to be text-based (news articles), so most of the preprocessing will focus on text data
+
+Since this is NLP, we don't need to worry much about numerical standardization or most categorical encoding
+
+We should focus on text-specific EDA and preprocessing
+
+✅ COMPLETED DATA CLEANING STEPS:
+Missing Value Handling
+
+Filled all missing text values with empty strings
+
+Verified no missing values remain
+
+Text Preprocessing
+
+Combined title + text into full_text column
+
+Added essential text features (length, word count, etc.)
+
+Outlier Removal
+
+Used iterative Z-score method (threshold=3)
+
+Guaranteed 0 outliers remain in both:
+
+text_length
+
+word_count
+
+Visual confirmation via boxplots
+
+Feature Engineering
+
+Created numeric features (char count, word count, etc.)
+
+Added simple sentiment indicators (!, ? counts)
+
+Temporal features (if dates existed)
+
+🔍 VERIFICATION STEPS PERFORMED:
+Missing value heatmaps
+
+Outlier removal iterations logged
+
+Final outlier counts confirmed as 0
+
+Distribution visualizations
