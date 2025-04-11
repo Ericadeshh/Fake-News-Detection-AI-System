@@ -56,6 +56,7 @@ if __name__ == '__main__':
         sys.exit(1)
     
     try:
+        logging.info("🚀 Starting application initialization...")
         app = create_app()
         
         # Final verification
@@ -63,7 +64,15 @@ if __name__ == '__main__':
             logging.error("❌ AI service failed to initialize")
             sys.exit(1)
             
-        logging.info("🚀 Starting Flask development server")
+        logging.info("""
+        ========================================
+        🚀 Fake News Detection System Ready!
+        ========================================
+        Backend: http://localhost:5000
+        Frontend: http://localhost:5173
+        ========================================
+        """)
+        
         app.run(host='0.0.0.0', port=5000, debug=True)
         
     except Exception as e:

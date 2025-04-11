@@ -46,6 +46,9 @@ const NewsChecker = () => {
     const fetchStats = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/stats`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch stats");
+        }
         const data = await response.json();
         setStats(data);
       } catch (error) {
@@ -65,30 +68,23 @@ const NewsChecker = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ text }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        const apiError = data as {
-          error?: string;
-          details?: string;
-          status?: string;
-        };
-        throw new Error(apiError.error || "Request failed", {
-          cause: apiError,
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Request failed", {
+          cause: errorData,
         });
       }
 
+      const data = await response.json();
+
       if (data.status !== "success") {
         throw new Error("Invalid response from server", {
-          cause: {
-            error: "Unexpected status",
-            details: "Received unexpected status",
-            status: "error",
-          },
+          cause: data,
         });
       }
 
@@ -104,9 +100,8 @@ const NewsChecker = () => {
         status: data.status,
       });
     } catch (err: unknown) {
-      let errorMessage = "Connection failed";
-      let errorDetails = "Ensure backend is running and CORS is configured";
-      let errorStatus = "error";
+      let errorMessage = "Failed to connect to the server";
+      let errorDetails = "Please check your internet connection and try again.";
 
       if (err instanceof Error) {
         errorMessage = err.message;
@@ -118,7 +113,15 @@ const NewsChecker = () => {
             status?: string;
           };
           errorDetails = cause.details || errorDetails;
-          errorStatus = cause.status || errorStatus;
+
+          // Handle CORS errors specifically
+          if (errorMessage.includes("Failed to fetch")) {
+            errorDetails =
+              "Could not connect to the backend server. Ensure: \n" +
+              "1. The backend is running\n" +
+              "2. CORS is properly configured\n" +
+              "3. No network restrictions are blocking the request";
+          }
         }
       } else if (typeof err === "string") {
         errorMessage = err;
@@ -128,7 +131,7 @@ const NewsChecker = () => {
       setError({
         error: errorMessage,
         details: errorDetails,
-        status: errorStatus,
+        status: "error",
       });
     } finally {
       setIsLoading(false);
@@ -367,7 +370,11 @@ const NewsChecker = () => {
         <div className={`alert alert-danger ${styles.errorAlert}`}>
           <i className="bi bi-exclamation-triangle-fill me-2"></i>
           <strong>{error.error}</strong>
-          {error.details && <div className="mt-2">{error.details}</div>}
+          {error.details && (
+            <div className="mt-2" style={{ whiteSpace: "pre-line" }}>
+              {error.details}
+            </div>
+          )}
           <button
             type="button"
             className="btn-close"

@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 @bp.route('/')
 def home():
+    logger.info("Homepage accessed")
     return """
     <h1>Fake News Detection API</h1>
     <p>Available endpoints:</p>
@@ -29,6 +30,7 @@ def home():
 def health_check():
     """Comprehensive health check with timing metrics"""
     start_time = time.time()
+    logger.info("Health check requested")
     
     status = {
         'api': 'running',
@@ -46,12 +48,75 @@ def health_check():
     try:
         db.session.execute(text('SELECT 1'))
         status['database_latency_ms'] = (time.time() - db_start) * 1000
+        logger.debug("Database health check passed")
     except Exception as e:
         status['database'] = 'error'
         status['database_error'] = str(e)
         logger.error(f"Database health check failed: {str(e)}")
     
     status['response_time_ms'] = (time.time() - start_time) * 1000
+    logger.info(f"Health check completed in {status['response_time_ms']}ms")
+    return jsonify(status)
+
+
+# Updated app/routes.py
+import sys
+import os
+from flask import Blueprint, request, jsonify
+from app.models import Conversation
+from app import db
+from app.ai_service import ai_service
+import logging
+from datetime import datetime
+from sqlalchemy import text
+import time
+
+bp = Blueprint('routes', __name__)
+logger = logging.getLogger(__name__)
+
+@bp.route('/')
+def home():
+    logger.info("Homepage accessed")
+    return """
+    <h1>Fake News Detection API</h1>
+    <p>Available endpoints:</p>
+    <ul>
+        <li>GET /health - System status</li>
+        <li>POST /predict - Submit text for analysis</li>
+        <li>POST /feedback - Provide feedback on predictions</li>
+    </ul>
+    """
+
+@bp.route('/health', methods=['GET'])
+def health_check():
+    """Comprehensive health check with timing metrics"""
+    start_time = time.time()
+    logger.info("Health check requested")
+    
+    status = {
+        'api': 'running',
+        'database': 'ok',
+        'model': ai_service.get_status(),
+        'timestamp': datetime.utcnow().isoformat(),
+        'system': {
+            'python_version': sys.version,
+            'platform': sys.platform
+        }
+    }
+    
+    # Database check
+    db_start = time.time()
+    try:
+        db.session.execute(text('SELECT 1'))
+        status['database_latency_ms'] = (time.time() - db_start) * 1000
+        logger.debug("Database health check passed")
+    except Exception as e:
+        status['database'] = 'error'
+        status['database_error'] = str(e)
+        logger.error(f"Database health check failed: {str(e)}")
+    
+    status['response_time_ms'] = (time.time() - start_time) * 1000
+    logger.info(f"Health check completed in {status['response_time_ms']}ms")
     return jsonify(status)
 
 @bp.route('/predict', methods=['POST'])
@@ -65,6 +130,9 @@ def predict():
     }
     
     try:
+        # Log request headers for debugging
+        logger.debug(f"Request headers: {dict(request.headers)}")
+        
         # Validate request
         if not request.is_json:
             logger.warning("Non-JSON request received")
@@ -115,7 +183,7 @@ def predict():
         db.session.commit()
         request_data['db_time'] = (time.time() - db_start) * 1000
         
-        logger.info(f"Prediction completed (ID: {conversation.id})")
+        logger.info(f"Prediction completed (ID: {conversation.id}) - Result: {label} ({confidence:.2%})")
         
         request_data['total_time'] = (time.time() - start_time) * 1000
         
