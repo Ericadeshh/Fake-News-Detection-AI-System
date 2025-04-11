@@ -33,22 +33,14 @@ const NewsChecker = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [feedbackStatus, setFeedbackStatus] = useState<
-    "idle" | "success" | "error"
+    "idle" | "success" | "error" | "changed"
   >("idle");
   const [stats, setStats] = useState<SystemStats | null>(null);
-  const [performanceMetrics, setPerformanceMetrics] = useState<{
-    processingTime?: number;
-    textLength?: number;
-  }>({});
 
-  // Fetch system stats on component mount and when new results come in
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/stats`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch stats");
-        }
         const data = await response.json();
         setStats(data);
       } catch (error) {
@@ -61,37 +53,21 @@ const NewsChecker = () => {
   const checkNews = async () => {
     setIsLoading(true);
     setError(null);
-    const startTime = Date.now();
 
     try {
       const response = await fetch(`${API_BASE_URL}/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Accept: "application/json",
         },
         body: JSON.stringify({ text }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Request failed", {
-          cause: errorData,
-        });
-      }
-
       const data = await response.json();
 
-      if (data.status !== "success") {
-        throw new Error("Invalid response from server", {
-          cause: data,
-        });
+      if (!response.ok) {
+        throw new Error(data.error || "Request failed");
       }
-
-      setPerformanceMetrics({
-        processingTime: data.request_data?.processing_time,
-        textLength: data.request_data?.text_length,
-      });
 
       setResult({
         prediction: data.prediction,
@@ -99,43 +75,14 @@ const NewsChecker = () => {
         id: data.id,
         status: data.status,
       });
-    } catch (err: unknown) {
-      let errorMessage = "Failed to connect to the server";
-      let errorDetails = "Please check your internet connection and try again.";
-
-      if (err instanceof Error) {
-        errorMessage = err.message;
-
-        if (err.cause && typeof err.cause === "object") {
-          const cause = err.cause as {
-            error?: string;
-            details?: string;
-            status?: string;
-          };
-          errorDetails = cause.details || errorDetails;
-
-          // Handle CORS errors specifically
-          if (errorMessage.includes("Failed to fetch")) {
-            errorDetails =
-              "Could not connect to the backend server. Ensure: \n" +
-              "1. The backend is running\n" +
-              "2. CORS is properly configured\n" +
-              "3. No network restrictions are blocking the request";
-          }
-        }
-      } else if (typeof err === "string") {
-        errorMessage = err;
-      }
-
-      console.error("API Error:", err);
+    } catch (err) {
       setError({
-        error: errorMessage,
-        details: errorDetails,
+        error: "Failed to process prediction",
+        details: err instanceof Error ? err.message : "Unknown error",
         status: "error",
       });
     } finally {
       setIsLoading(false);
-      console.log(`Request took ${Date.now() - startTime}ms`);
     }
   };
 
@@ -156,35 +103,56 @@ const NewsChecker = () => {
 
       const data = await response.json();
 
-      if (!response.ok || data.status !== "success") {
-        throw new Error(data.error || "Feedback submission failed", {
-          cause: data,
-        });
+      if (!response.ok) {
+        throw new Error(data.error || "Feedback submission failed");
       }
 
       setFeedbackStatus("success");
-      // Refresh stats after feedback
       const statsResponse = await fetch(`${API_BASE_URL}/stats`);
       setStats(await statsResponse.json());
-    } catch (err: unknown) {
-      let errorMessage = "Failed to submit feedback";
-      let errorDetails = "Unknown error occurred";
-
-      if (err instanceof Error) {
-        errorMessage = err.message;
-        if (err.cause && typeof err.cause === "object") {
-          const cause = err.cause as { details?: string };
-          errorDetails = cause.details || errorDetails;
-        }
-      } else if (typeof err === "string") {
-        errorMessage = err;
-      }
-
-      console.error("Feedback Error:", err);
+    } catch (err) {
       setFeedbackStatus("error");
       setError({
-        error: errorMessage,
-        details: errorDetails,
+        error: "Failed to submit feedback",
+        details: err instanceof Error ? err.message : "Unknown error",
+        status: "error",
+      });
+    }
+  };
+
+  const changeFeedbackAnalysis = async () => {
+    if (!result) return;
+
+    try {
+      const oppositePrediction = result.prediction === "true" ? "fake" : "true";
+
+      const response = await fetch(`${API_BASE_URL}/change-feedback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: result.id,
+          edited_prediction: oppositePrediction,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to change feedback analysis");
+      }
+
+      setFeedbackStatus("changed");
+      setResult({
+        ...result,
+        prediction: oppositePrediction,
+      });
+
+      const statsResponse = await fetch(`${API_BASE_URL}/stats`);
+      setStats(await statsResponse.json());
+    } catch (err) {
+      setError({
+        error: "Failed to change feedback analysis",
+        details: err instanceof Error ? err.message : "Unknown error",
         status: "error",
       });
     }
@@ -195,7 +163,6 @@ const NewsChecker = () => {
     setResult(null);
     setError(null);
     setFeedbackStatus("idle");
-    setPerformanceMetrics({});
   };
 
   return (
@@ -205,7 +172,6 @@ const NewsChecker = () => {
         News Authenticity Analyzer
       </h1>
 
-      {/* System Stats Panel */}
       {stats && (
         <div className={`${styles.statsPanel} mb-4`}>
           <h3>
@@ -252,9 +218,6 @@ const NewsChecker = () => {
               placeholder="Paste news article or snippet here..."
               disabled={isLoading}
             />
-            <div className="text-end text-muted mt-1">
-              {text.length} characters
-            </div>
           </div>
 
           <button
@@ -305,19 +268,6 @@ const NewsChecker = () => {
             </button>
           </div>
 
-          {performanceMetrics.processingTime && (
-            <div className={styles.performanceInfo}>
-              <div>
-                <i className="bi bi-speedometer2 me-2"></i>
-                Processed in {performanceMetrics.processingTime}ms
-              </div>
-              <div>
-                <i className="bi bi-text-paragraph me-2"></i>
-                {performanceMetrics.textLength} characters analyzed
-              </div>
-            </div>
-          )}
-
           <div className={styles.confidenceMeter}>
             <div className={styles.meterLabel}>
               Confidence: {(result.confidence * 100).toFixed(1)}%
@@ -332,6 +282,18 @@ const NewsChecker = () => {
             <div className={`alert alert-success ${styles.feedbackAlert}`}>
               <i className="bi bi-check-circle-fill me-2"></i>
               Thank you for your feedback!
+              <button
+                className={`btn btn-outline-warning mt-2 ${styles.changeFeedbackButton}`}
+                onClick={changeFeedbackAnalysis}
+              >
+                <i className="bi bi-arrow-repeat me-1"></i>
+                Change Feedback Analysis
+              </button>
+            </div>
+          ) : feedbackStatus === "changed" ? (
+            <div className={`alert alert-info ${styles.feedbackAlert}`}>
+              <i className="bi bi-info-circle-fill me-2"></i>
+              Feedback analysis has been updated!
             </div>
           ) : (
             <div className={styles.feedbackSection}>
@@ -370,11 +332,7 @@ const NewsChecker = () => {
         <div className={`alert alert-danger ${styles.errorAlert}`}>
           <i className="bi bi-exclamation-triangle-fill me-2"></i>
           <strong>{error.error}</strong>
-          {error.details && (
-            <div className="mt-2" style={{ whiteSpace: "pre-line" }}>
-              {error.details}
-            </div>
-          )}
+          {error.details && <div className="mt-2">{error.details}</div>}
           <button
             type="button"
             className="btn-close"

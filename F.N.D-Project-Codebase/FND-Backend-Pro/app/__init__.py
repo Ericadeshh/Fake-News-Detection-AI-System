@@ -1,4 +1,3 @@
-# Updated app/__init__.py
 __version__ = "1.0.0" 
 
 import os
@@ -84,13 +83,14 @@ def create_app(config_class=Config):
     )
     logger = logging.getLogger(__name__)
     
-    # CORS configuration - UPDATED TO ALLOW PORT 5173
+    # CORS configuration - Updated to include all endpoints
     cors_start = time.time()
     CORS(app, resources={
-        r"/predict": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]},
-        r"/feedback": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]},
-        r"/health": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]},
-        r"/stats": {"origins": ["http://localhost:5173", "http://127.0.0.1:5173"]}
+        r"/*": {
+            "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
+            "methods": ["GET", "POST", "OPTIONS"],
+            "allow_headers": ["Content-Type"]
+        }
     })
     logging.info(f"✓ CORS configured for React frontend in {(time.time()-cors_start)*1000:.2f}ms")
 
