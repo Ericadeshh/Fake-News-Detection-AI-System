@@ -1,11 +1,24 @@
-Flask==2.3.2
-Flask-SQLAlchemy==3.0.3
-Flask-Migrate==4.0.4
-Flask-Login==0.6.2
-mysql-connector-python==8.0.33
-python-dotenv==1.0.0
+# Core Backend
+flask==2.3.2
+flask-sqlalchemy==3.0.3
+flask-migrate==4.0.4
 flask-cors==3.0.10
-numpy==1.23.5  # Updated to be compatible with TensorFlow 2.12
-pandas==1.5.3  # Downgraded to be compatible with numpy 1.23.5
+
+# Machine Learning
 tensorflow==2.12.0
-scikit-learn==1.2.2  # Works with numpy 1.23.5
+scikit-learn==1.2.2
+imbalanced-learn==0.10.1  # Added for SMOTE
+numpy==1.23.5
+pandas==1.5.3
+joblib==1.2.0
+
+# Visualization
+matplotlib==3.7.1
+seaborn==0.12.2
+wordcloud==1.9.2
+
+# Database
+mysqlclient==2.1.1
+
+# Text Processing
+nltk==3.8.1  # Often needed for NLP tasks

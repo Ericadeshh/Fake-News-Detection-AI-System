@@ -1,0 +1,145 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.newsChecker {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.heading {
+  color: #343a40;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.textarea {
+  min-height: 200px;
+  resize: vertical;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.analyzeButton {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.analyzeButton:hover {
+  transform: translateY(-2px);
+}
+
+.analyzeButton:disabled {
+  transform: none;
+}
+
+.resultsContainer {
+  padding: 2rem;
+  border-radius: 8px;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.trueResult {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-left: 4px solid #28a745;
+}
+
+.fakeResult {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-left: 4px solid #dc3545;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.confidenceMeter {
+  margin: 2rem 0;
+}
+
+.meterLabel {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.meterBar {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #28a745, #ffc107);
+  transition: width 0.5s ease;
+}
+
+.feedbackSection {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.feedbackPrompt {
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.feedbackButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.feedbackButtons button {
+  flex: 1;
+}
+
+.errorAlert {
+  margin-top: 1.5rem;
+  position: relative;
+  padding-right: 3rem;
+}
+
+.statsPanel {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.statItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.statLabel {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.statValue {
+  font-weight: 600;
+}
+
+.performanceInfo {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}

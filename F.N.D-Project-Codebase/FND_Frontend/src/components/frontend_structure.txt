@@ -1,0 +1,10 @@
+src/
+├── components/
+│   ├── NewsChecker/
+│   │   ├── NewsChecker.tsx
+│   │   └── NewsChecker.module.css
+│   └── ... (other components if needed)
+├── types/
+│   └── prediction.d.ts
+├── App.tsx
+└── main.tsx
