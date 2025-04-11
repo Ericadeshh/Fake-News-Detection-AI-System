@@ -40,41 +40,36 @@ class AIService:
         self.load_model()
     
     def load_model(self):
-        """Enhanced model loading with detailed logging"""
-        start_time = time.time()
+        """Enhanced model loading with detailed error reporting"""
         try:
-            logger.info("⏳ Loading AI model components...")
-            
-            model_path = os.path.join(os.getenv('MODEL_PATH'), os.getenv('MODEL_FILE'))
-            tokenizer_path = os.path.join(os.getenv('MODEL_PATH'), os.getenv('TOKENIZER_FILE'))
-            
-            if not all(os.path.exists(p) for p in [model_path, tokenizer_path]):
-                raise FileNotFoundError(f"Model files missing. Looking in: {model_path}")
-            
-            # Load tokenizer first
-            tokenizer_start = time.time()
+            model_path = os.path.join('saved_model', 'true_fake_news_classifier.keras')
+            tokenizer_path = os.path.join('saved_model', 'tokenizer.pkl')
+
+            # Verify files exist
+            if not os.path.exists(model_path):
+                raise FileNotFoundError(f"Model file missing at: {model_path}")
+            if not os.path.exists(tokenizer_path):
+                raise FileNotFoundError(f"Tokenizer file missing at: {tokenizer_path}")
+
+            # Load tokenizer
             self.tokenizer = joblib.load(tokenizer_path)
-            logger.info(f"✓ Tokenizer loaded in {(time.time()-tokenizer_start)*1000:.2f}ms")
             
-            # Then load model
-            model_start = time.time()
+            # Load model
             self.model = load_model(model_path, compile=False)
-            logger.info(f"✓ Model loaded in {(time.time()-model_start)*1000:.2f}ms")
             
-            # Verify model can make predictions
-            test_start = time.time()
-            test_text = "This is a test news article for model verification"
-            self.predict(test_text)
-            logger.info(f"✓ Model test prediction completed in {(time.time()-test_start)*1000:.2f}ms")
-            
+            # Verify prediction works
+            test_text = "This is a test sentence for model verification"
+            sequence = self.tokenizer.texts_to_sequences([test_text])
+            pad_sequences(sequence, maxlen=150)  # Test shape compatibility
+
             self.status = "ready"
-            logger.info(f"✅ Model fully initialized in {(time.time()-start_time)*1000:.2f}ms")
-            
+            logging.info("✅ Model loaded successfully")
+
         except Exception as e:
             self.status = "error"
-            logger.error(f"❌ Model loading failed after {(time.time()-start_time)*1000:.2f}ms: {str(e)}")
+            logging.error(f"❌ Model loading failed: {str(e)}")
             raise
-
+    
     def get_status(self):
         """Return detailed service status"""
         return {

@@ -1,4 +1,6 @@
 # Updated app/routes.py
+import sys
+import os
 from flask import Blueprint, request, jsonify
 from app.models import Conversation
 from app import db
@@ -13,17 +15,13 @@ logger = logging.getLogger(__name__)
 
 @bp.route('/')
 def home():
-    """Enhanced home endpoint with system info"""
-    from app import __version__
-    return f"""
+    return """
     <h1>Fake News Detection API</h1>
-    <p>Version: {__version__}</p>
     <p>Available endpoints:</p>
     <ul>
-        <li>GET /health - Comprehensive system status</li>
-        <li>POST /predict - Submit text for analysis (JSON: {"text": "your news here"})</li>
-        <li>POST /feedback - Provide feedback on predictions (JSON: {"id": 123, "feedback": "correct|incorrect"})</li>
-        <li>GET /stats - System performance statistics</li>
+        <li>GET /health - System status</li>
+        <li>POST /predict - Submit text for analysis</li>
+        <li>POST /feedback - Provide feedback on predictions</li>
     </ul>
     """
 
@@ -193,16 +191,19 @@ def feedback():
 @bp.route('/stats', methods=['GET'])
 def get_stats():
     """System performance statistics"""
-    stats = {
-        'total_predictions': Conversation.query.count(),
-        'true_predictions': Conversation.query.filter_by(prediction='true').count(),
-        'fake_predictions': Conversation.query.filter_by(prediction='fake').count(),
-        'average_confidence': db.session.query(
-            db.func.avg(Conversation.confidence)
-        ).scalar(),
-        'feedback_stats': {
-            'correct': Conversation.query.filter_by(feedback='correct').count(),
-            'incorrect': Conversation.query.filter_by(feedback='incorrect').count()
+    try:
+        stats = {
+            'total_predictions': Conversation.query.count(),
+            'true_predictions': Conversation.query.filter_by(prediction='true').count(),
+            'fake_predictions': Conversation.query.filter_by(prediction='fake').count(),
+            'average_confidence': db.session.query(
+                db.func.avg(Conversation.confidence)
+            ).scalar() or 0,  # Handle None case
+            'feedback_stats': {
+                'correct': Conversation.query.filter_by(feedback='correct').count(),
+                'incorrect': Conversation.query.filter_by(feedback='incorrect').count()
+            }
         }
-    }
-    return jsonify(stats)
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
