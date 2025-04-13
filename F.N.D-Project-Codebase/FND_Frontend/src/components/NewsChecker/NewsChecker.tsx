@@ -6,6 +6,7 @@ type PredictionResult = {
   confidence: number;
   id: number;
   status: string;
+  input_type: "text" | "file" | "url"; // Add this line
 };
 
 type ApiError = {
@@ -101,16 +102,20 @@ const NewsChecker = () => {
     try {
       let content = "";
       let payload: unknown = {};
+      let inputType: "text" | "file" | "url" = "text";
 
       if (inputMethod === "text") {
         content = text;
-        payload = { content };
+        inputType = "text";
+        payload = { content, input_type: "text" };
       } else if (inputMethod === "file" && file) {
         content = await extractTextFromFile(file);
-        payload = { content };
+        inputType = "file";
+        payload = { content, input_type: "file" };
       } else if (inputMethod === "url" && url) {
         content = await fetchArticleFromUrl(url);
-        payload = { content };
+        inputType = "url";
+        payload = { content, input_type: "url" };
       }
 
       if (!content.trim()) {
@@ -135,6 +140,7 @@ const NewsChecker = () => {
         prediction: data.prediction,
         confidence: data.confidence,
         id: data.id,
+        input_type: data.input_type || inputType,
         status: data.status,
       });
     } catch (err) {

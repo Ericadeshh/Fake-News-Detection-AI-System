@@ -1,8 +1,8 @@
 import sys
 import os
 from flask import Blueprint, request, jsonify
-from bs4 import BeautifulSoup
-import requests
+from bs4 import BeautifulSoup # type: ignore
+import requests # type: ignore
 import PyPDF2
 import docx
 import io
@@ -120,7 +120,7 @@ def predict():
     
     try:
         content = ""
-        request_data['input_method'] = 'unknown'
+        input_type = "text"  # Default
         
         # Handle file upload
         if 'file' in request.files:
@@ -129,6 +129,7 @@ def predict():
                 raise ValueError("No file selected")
             
             filename = file.filename.lower()
+            input_type = "file"
             request_data['input_method'] = 'file_upload'
             
             if filename.endswith('.txt'):
@@ -146,6 +147,7 @@ def predict():
         elif request.is_json:
             data = request.get_json()
             if 'url' in data:
+                input_type = "url"
                 request_data['input_method'] = 'url'
                 url = data.get('url', '').strip()
                 if not url:
@@ -161,6 +163,8 @@ def predict():
                     raise ValueError("Failed to fetch URL content")
                 content = fetch_response.json().get('content', '')
             else:
+                # Get input_type from frontend payload if available
+                input_type = data.get('input_type', 'text')
                 request_data['input_method'] = 'text'
                 content = data.get('text', data.get('content', '')).strip()
         
@@ -180,6 +184,7 @@ def predict():
         db_start = time.time()
         conversation = Conversation(
             input_text=content[:5000],  # Limit to 5000 chars
+            input_type=input_type,
             prediction=label,
             edited_prediction=None,
             confidence=confidence,
@@ -197,6 +202,7 @@ def predict():
             'prediction': label,
             'confidence': confidence,
             'id': conversation.id,
+            'input_type': input_type,
             'status': 'success',
             'request_data': request_data
         })
