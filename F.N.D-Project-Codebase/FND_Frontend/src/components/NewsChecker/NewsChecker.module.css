@@ -1,94 +1,449 @@
+/* Color Palette */
+:root {
+  --primary: #2c3e50; /* Navy */
+  --secondary: #1abc9c; /* Teal */
+  --accent: #e74c3c; /* Coral */
+  --light: #ecf0f1; /* Light Gray */
+  --success: #2ecc71; /* Green */
+  --info: #3498db; /* Blue */
+  --warning: #f39c12; /* Orange */
+  --danger: #e74c3c; /* Coral */
+}
+
+/* Base Styles */
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  min-height: 100vh;
 }
 
-.newsChecker {
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: var(--primary);
 }
 
-.heading {
-  color: #343a40;
+.headerIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--secondary);
+}
+
+/* Metrics Dashboard */
+.metricsDashboard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.metricsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+}
+
+.lastUpdated {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.metricCard {
+  padding: 1.5rem;
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-5px);
+}
+
+.primaryCard {
+  background: rgba(52, 152, 219, 0.1);
+  border-left: 4px solid var(--info);
+}
+
+.successCard {
+  background: rgba(46, 204, 113, 0.1);
+  border-left: 4px solid var(--success);
+}
+
+.dangerCard {
+  background: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid var(--danger);
+}
+
+.infoCard {
+  background: rgba(155, 89, 182, 0.1);
+  border-left: 4px solid #9b59b6;
+}
+
+.metricIcon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--primary);
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+}
+
+.metricLabel {
+  font-size: 1rem;
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+}
+
+.metricTrend {
+  font-size: 0.85rem;
+  color: #95a5a6;
+}
+
+/* Charts */
+.metricChart {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.chartContainer {
+  margin-top: 1rem;
+  height: 40px;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.chartBar {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: width 0.5s ease;
 }
 
-.textarea {
-  min-height: 200px;
+.chartBar:nth-child(1) {
+  background: var(--info);
+}
+.chartBar:nth-child(2) {
+  background: #9b59b6;
+}
+.chartBar:nth-child(3) {
+  background: var(--secondary);
+}
+
+/* Donut Chart */
+.donutChart {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 1.5rem auto;
+  border-radius: 50%;
+  background: #f5f5f5;
+}
+
+.donutSegment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip: rect(0, 150px, 150px, 75px);
+  border-radius: 50%;
+  transform: rotate(calc(360deg * (var(--value) / var(--total))));
+  background: var(--color);
+}
+
+.donutCenter {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 50%;
+  top: 35px;
+  left: 35px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.donutCenter small {
+  font-size: 0.7rem;
+  color: #95a5a6;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+}
+
+.legend i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 5px;
+}
+
+/* Activity Graph */
+.activityGraph {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 150px;
+  margin-top: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.activityBar {
+  flex: 1;
+  max-width: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.activityFill {
+  width: 100%;
+  background: linear-gradient(to top, var(--info), var(--secondary));
+  border-radius: 5px 5px 0 0;
+  transition: height 0.5s ease;
+  margin-bottom: 5px;
+}
+
+.activityBar span {
+  font-size: 0.7rem;
+  color: #95a5a6;
+}
+
+/* Analyzer Card */
+.analyzerCard {
+  background: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.analyzerCard h2 {
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.inputTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  background: var(--light);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.activeTab {
+  background: var(--primary);
+  color: white;
+}
+
+.textInput,
+.urlInput {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
   resize: vertical;
-  font-size: 1rem;
-  line-height: 1.5;
+  min-height: 150px;
+}
+
+.urlInput {
+  min-height: auto;
+}
+
+.fileUpload {
+  margin-bottom: 1.5rem;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  width: 100%;
+  padding: 1rem;
+  background: var(--light);
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .analyzeButton {
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+  width: 100%;
+  padding: 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   transition: all 0.2s;
 }
 
 .analyzeButton:hover {
-  transform: translateY(-2px);
+  background: var(--secondary);
 }
 
 .analyzeButton:disabled {
-  transform: none;
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
-.resultsContainer {
+/* Result Card */
+.resultCard {
+  background: white;
+  border-radius: 10px;
   padding: 2rem;
-  border-radius: 8px;
-  margin-top: 1.5rem;
-  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
-.trueResult {
-  background-color: rgba(40, 167, 69, 0.1);
-  border-left: 4px solid #28a745;
+.true {
+  border-top: 4px solid var(--success);
 }
 
-.fakeResult {
-  background-color: rgba(220, 53, 69, 0.1);
-  border-left: 4px solid #dc3545;
+.fake {
+  border-top: 4px solid var(--danger);
 }
 
-.resultsHeader {
+.resultHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
+.resultHeader h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resultHeader h2 span {
+  color: var(--success);
+}
+
+.fake .resultHeader h2 span {
+  color: var(--danger);
+}
+
+.newAnalysisButton {
+  background: none;
+  border: 1px solid #ddd;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Confidence Meter */
 .confidenceMeter {
   margin: 2rem 0;
 }
 
-.meterLabel {
+.meterInfo {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
-.meterBar {
-  height: 8px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #28a745, #ffc107);
-  transition: width 0.5s ease;
+.meterTrack {
+  height: 10px;
+  background: var(--light);
+  border-radius: 5px;
+  overflow: hidden;
 }
 
+.meterFill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--success), var(--danger));
+  transition: width 1s ease-out;
+  animation: fillAnimation 1s ease-out forwards;
+}
+
+@keyframes fillAnimation {
+  from {
+    width: 0;
+  }
+}
+
+/* Feedback Section */
 .feedbackSection {
   margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #dee2e6;
+  padding-top: 2rem;
+  border-top: 1px solid var(--light);
+  text-align: center;
 }
 
-.feedbackPrompt {
-  font-weight: 500;
+.feedbackSection p {
   margin-bottom: 1rem;
+  font-weight: 500;
 }
 
 .feedbackButtons {
@@ -98,71 +453,141 @@
 
 .feedbackButtons button {
   flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
+.correctButton {
+  background: var(--success);
+  color: white;
+}
+
+.incorrectButton {
+  background: var(--danger);
+  color: white;
+}
+
+.feedbackSuccess,
+.feedbackChanged {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.feedbackSuccess {
+  background: rgba(46, 204, 113, 0.1);
+  color: var(--success);
+}
+
+.feedbackChanged {
+  background: rgba(52, 152, 219, 0.1);
+  color: var(--info);
+}
+
+.changeFeedbackButton {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid var(--warning);
+  color: var(--warning);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.changeFeedbackButton:hover {
+  background: rgba(243, 156, 18, 0.1);
+}
+
+/* Error Alert */
 .errorAlert {
-  margin-top: 1.5rem;
-  position: relative;
-  padding-right: 3rem;
-}
-
-.statsPanel {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  padding: 1rem;
+  background: rgba(231, 76, 60, 0.1);
+  border-left: 4px solid var(--danger);
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
   margin-top: 1rem;
 }
 
-.statItem {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+.errorAlert div {
+  flex: 1;
 }
 
-.statLabel {
-  font-weight: 500;
-  color: #6c757d;
-}
-
-.statValue {
-  font-weight: 600;
-}
-
-.performanceInfo {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  color: #6c757d;
-}
-.changeFeedbackButton {
-  display: block;
-  width: 100%;
-  margin-top: 10px;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
-}
-
-.feedbackAlert {
-  position: relative;
-  padding-bottom: 2rem;
-}
-.feedbackAlert .closeButton {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+.errorAlert button {
   background: none;
   border: none;
+  font-size: 1.25rem;
   cursor: pointer;
+  color: var(--danger);
 }
-.feedbackAlert .closeButton:hover {
-  color: #dc3545;
+
+/* Animations */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .inputTabs {
+    flex-direction: column;
+  }
+
+  .resultHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .feedbackButtons {
+    flex-direction: column;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .donutChart {
+    width: 120px;
+    height: 120px;
+  }
+
+  .donutCenter {
+    width: 60px;
+    height: 60px;
+    top: 30px;
+    left: 30px;
+  }
 }
