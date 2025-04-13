@@ -373,6 +373,7 @@ const NewsChecker = () => {
             </div>
           </div>
 
+          {/*
           {/* Activity Graph */}
           <div className={styles.metricChart}>
             <h4>Hourly Activity</h4>
