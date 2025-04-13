@@ -1,6 +1,11 @@
 import sys
 import os
 from flask import Blueprint, request, jsonify
+from bs4 import BeautifulSoup
+import requests
+import PyPDF2
+import docx
+import io
 from app.models import Conversation
 from app import db
 from app.ai_service import ai_service
@@ -26,9 +31,10 @@ def home():
     <p>Available endpoints:</p>
     <ul>
         <li>GET /health - System status</li>
-        <li>POST /predict - Submit text for analysis</li>
+        <li>POST /predict - Submit text/file/URL for analysis</li>
         <li>POST /feedback - Provide feedback on predictions</li>
         <li>POST /change-feedback - Change feedback analysis</li>
+        <li>POST /fetch-article - Extract article from URL</li>
     </ul>
     """
 
@@ -41,52 +47,171 @@ def health_check():
         'api': 'running',
         'database': 'ok',
         'model': ai_service.get_status(),
-        'timestamp': datetime.utcnow().isoformat()
+        'timestamp': datetime.utcnow().isoformat(),
+        'features': ['text_input', 'url_input', 'file_upload']
     }
     response = jsonify(status)
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
     return response
 
-@bp.route('/predict', methods=['POST', 'OPTIONS'])
-def predict():
+@bp.route('/fetch-article', methods=['POST', 'OPTIONS'])
+def fetch_article():
+    """Endpoint to fetch article content from URL"""
     if request.method == 'OPTIONS':
         return _build_cors_preflight_response()
     
     try:
-        if not request.is_json:
-            return jsonify({'error': 'Request must be JSON'}), 400
-            
         data = request.get_json()
-        text = data.get('text', '').strip()
+        url = data.get('url')
         
-        if not text:
-            return jsonify({'error': 'Text is required'}), 400
+        if not url:
+            return jsonify({'error': 'URL is required'}), 400
         
-        label, confidence = ai_service.predict(text)
+        # Fetch the webpage with timeout
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
         
-        conversation = Conversation(
-            input_text=text[:5000],
-            prediction=label,
-            edited_prediction=None,
-            confidence=confidence,
-            feedback=None
-        )
+        # Parse the content
+        soup = BeautifulSoup(response.text, 'html.parser')
         
-        db.session.add(conversation)
-        db.session.commit()
+        # Remove unwanted elements
+        for element in soup(['script', 'style', 'nav', 'footer', 'iframe', 'header']):
+            element.decompose()
         
+        # Get text from paragraphs and headings
+        paragraphs = soup.find_all(['p', 'h1', 'h2', 'h3'])
+        content = ' '.join([p.get_text().strip() for p in paragraphs if p.get_text().strip()])
+        
+        if not content:
+            return jsonify({'error': 'Could not extract article content'}), 400
+            
         response = jsonify({
-            'prediction': label,
-            'confidence': confidence,
-            'id': conversation.id,
+            'content': content[:10000],  # Limit to 10,000 chars
             'status': 'success'
         })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response
         
     except Exception as e:
+        logger.error(f"Failed to fetch article: {str(e)}")
+        response = jsonify({
+            'error': 'Failed to fetch article content',
+            'details': str(e)
+        })
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+        return response, 500
+
+@bp.route('/predict', methods=['POST', 'OPTIONS'])
+def predict():
+    """Enhanced prediction endpoint with multiple input methods"""
+    if request.method == 'OPTIONS':
+        return _build_cors_preflight_response()
+    
+    start_time = time.time()
+    request_data = {
+        'received_at': datetime.utcnow().isoformat(),
+        'input_method': None,
+        'content_length': None,
+        'processing_time': None
+    }
+    
+    try:
+        content = ""
+        request_data['input_method'] = 'unknown'
+        
+        # Handle file upload
+        if 'file' in request.files:
+            file = request.files['file']
+            if not file.filename:
+                raise ValueError("No file selected")
+            
+            filename = file.filename.lower()
+            request_data['input_method'] = 'file_upload'
+            
+            if filename.endswith('.txt'):
+                content = file.read().decode('utf-8')
+            elif filename.endswith('.pdf'):
+                pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
+                content = '\n'.join([page.extract_text() for page in pdf_reader.pages])
+            elif filename.endswith('.docx'):
+                doc = docx.Document(io.BytesIO(file.read()))
+                content = '\n'.join([para.text for para in doc.paragraphs])
+            else:
+                raise ValueError("Unsupported file type. Only TXT, PDF, and DOCX are supported")
+        
+        # Handle JSON input (text or URL content)
+        elif request.is_json:
+            data = request.get_json()
+            if 'url' in data:
+                request_data['input_method'] = 'url'
+                url = data.get('url', '').strip()
+                if not url:
+                    raise ValueError("URL is required")
+                
+                # Fetch content from URL
+                fetch_response = requests.post(
+                    f"http://localhost:5000/fetch-article",
+                    json={'url': url},
+                    headers={'Content-Type': 'application/json'}
+                )
+                if not fetch_response.ok:
+                    raise ValueError("Failed to fetch URL content")
+                content = fetch_response.json().get('content', '')
+            else:
+                request_data['input_method'] = 'text'
+                content = data.get('text', data.get('content', '')).strip()
+        
+        else:
+            raise ValueError("Invalid request format")
+        
+        request_data['content_length'] = len(content)
+        if not content.strip():
+            raise ValueError("No content provided for analysis")
+        
+        # Get prediction with timing
+        predict_start = time.time()
+        label, confidence = ai_service.predict(content)
+        request_data['processing_time'] = time.time() - predict_start
+        
+        # Save to database
+        db_start = time.time()
+        conversation = Conversation(
+            input_text=content[:5000],  # Limit to 5000 chars
+            prediction=label,
+            edited_prediction=None,
+            confidence=confidence,
+            feedback=None,
+            processing_time=request_data['processing_time']
+        )
+        db.session.add(conversation)
+        db.session.commit()
+        request_data['db_time'] = time.time() - db_start
+        
+        request_data['total_time'] = time.time() - start_time
+        logger.info(f"Prediction completed (ID: {conversation.id})")
+        
+        response = jsonify({
+            'prediction': label,
+            'confidence': confidence,
+            'id': conversation.id,
+            'status': 'success',
+            'request_data': request_data
+        })
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
+        return response
+        
+    except Exception as e:
         logger.error(f"Prediction error: {str(e)}")
-        response = jsonify({'error': str(e)})
+        request_data['total_time'] = time.time() - start_time
+        response = jsonify({
+            'error': 'Failed to process prediction',
+            'details': str(e),
+            'status': 'error',
+            'request_data': request_data
+        })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response, 500
 
@@ -100,6 +225,12 @@ def feedback():
         conv_id = data.get('id')
         feedback = data.get('feedback')
         
+        if not conv_id or feedback not in ['correct', 'incorrect']:
+            return jsonify({
+                'error': 'Invalid request parameters',
+                'details': 'Requires id and feedback (correct/incorrect)'
+            }), 400
+        
         conversation = Conversation.query.get(conv_id)
         if not conversation:
             return jsonify({'error': 'Conversation not found'}), 404
@@ -107,13 +238,23 @@ def feedback():
         conversation.feedback = feedback
         db.session.commit()
         
-        response = jsonify({'message': 'Feedback received', 'id': conv_id})
+        logger.info(f"Feedback recorded for ID: {conv_id}")
+        
+        response = jsonify({
+            'message': 'Feedback received',
+            'id': conv_id,
+            'status': 'success'
+        })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response
         
     except Exception as e:
         logger.error(f"Feedback error: {str(e)}")
-        response = jsonify({'error': str(e)})
+        response = jsonify({
+            'error': 'Failed to process feedback',
+            'details': str(e),
+            'status': 'error'
+        })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response, 500
 
@@ -127,6 +268,12 @@ def change_feedback():
         conv_id = data.get('id')
         edited_prediction = data.get('edited_prediction')
         
+        if not conv_id or edited_prediction not in ['fake', 'true']:
+            return jsonify({
+                'error': 'Invalid request parameters',
+                'details': 'Requires id and edited_prediction (fake/true)'
+            }), 400
+        
         conversation = Conversation.query.get(conv_id)
         if not conversation:
             return jsonify({'error': 'Conversation not found'}), 404
@@ -134,17 +281,24 @@ def change_feedback():
         conversation.edited_prediction = edited_prediction
         db.session.commit()
         
+        logger.info(f"Edited prediction recorded for ID: {conv_id} (New value: {edited_prediction})")
+        
         response = jsonify({
             'message': 'Edited prediction received',
             'id': conv_id,
-            'new_prediction': edited_prediction
+            'new_prediction': edited_prediction,
+            'status': 'success'
         })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response
         
     except Exception as e:
         logger.error(f"Change feedback error: {str(e)}")
-        response = jsonify({'error': str(e)})
+        response = jsonify({
+            'error': 'Failed to process edited prediction',
+            'details': str(e),
+            'status': 'error'
+        })
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response, 500
 
@@ -164,7 +318,8 @@ def get_stats():
             'feedback_stats': {
                 'correct': Conversation.query.filter_by(feedback='correct').count(),
                 'incorrect': Conversation.query.filter_by(feedback='incorrect').count()
-            }
+            },
+            'edited_predictions': Conversation.query.filter(Conversation.edited_prediction.isnot(None)).count()
         }
         response = jsonify(stats)
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./NewsChecker.module.css";
 
 type PredictionResult = {
@@ -25,10 +25,15 @@ type SystemStats = {
   };
 };
 
+type InputMethod = "text" | "file" | "url";
+
 const API_BASE_URL = "http://localhost:5000";
 
 const NewsChecker = () => {
   const [text, setText] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState("");
+  const [inputMethod, setInputMethod] = useState<InputMethod>("text");
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -36,6 +41,7 @@ const NewsChecker = () => {
     "idle" | "success" | "error" | "changed"
   >("idle");
   const [stats, setStats] = useState<SystemStats | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -50,17 +56,73 @@ const NewsChecker = () => {
     fetchStats();
   }, [result]);
 
+  const extractTextFromFile = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        resolve(content);
+      };
+      reader.onerror = () => {
+        reject(new Error("Failed to read file"));
+      };
+      reader.readAsText(file);
+    });
+  };
+
+  const fetchArticleFromUrl = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/fetch-article`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch article from URL");
+      }
+
+      const data = await response.json();
+      return data.content || "";
+    } catch (err) {
+      console.error("Failed to fetch via API:", err);
+      throw new Error(
+        "URL content could not be fetched. Please try another method."
+      );
+    }
+  };
+
   const checkNews = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
+      let content = "";
+      let payload: unknown = {};
+
+      if (inputMethod === "text") {
+        content = text;
+        payload = { content };
+      } else if (inputMethod === "file" && file) {
+        content = await extractTextFromFile(file);
+        payload = { content };
+      } else if (inputMethod === "url" && url) {
+        content = await fetchArticleFromUrl(url);
+        payload = { content };
+      }
+
+      if (!content.trim()) {
+        throw new Error("No content provided for analysis");
+      }
+
       const response = await fetch(`${API_BASE_URL}/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -84,6 +146,16 @@ const NewsChecker = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   const submitFeedback = async (feedback: "correct" | "incorrect") => {
@@ -160,6 +232,8 @@ const NewsChecker = () => {
 
   const resetForm = () => {
     setText("");
+    setFile(null);
+    setUrl("");
     setResult(null);
     setError(null);
     setFeedbackStatus("idle");
@@ -205,25 +279,108 @@ const NewsChecker = () => {
 
       {!result ? (
         <div className={styles.analysisSection}>
-          <div className="mb-4">
-            <label htmlFor="newsText" className="form-label">
-              Enter news content to analyze:
-            </label>
-            <textarea
-              id="newsText"
-              className={`form-control ${styles.textarea}`}
-              rows={8}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Paste news article or snippet here..."
-              disabled={isLoading}
-            />
+          <div className="mb-3">
+            <div className="btn-group w-100 mb-3">
+              <button
+                className={`btn ${
+                  inputMethod === "text" ? "btn-primary" : "btn-outline-primary"
+                }`}
+                onClick={() => setInputMethod("text")}
+              >
+                <i className="bi bi-text-paragraph me-2"></i>
+                Paste Text
+              </button>
+              <button
+                className={`btn ${
+                  inputMethod === "file" ? "btn-primary" : "btn-outline-primary"
+                }`}
+                onClick={() => setInputMethod("file")}
+              >
+                <i className="bi bi-file-earmark-text me-2"></i>
+                Upload File
+              </button>
+              <button
+                className={`btn ${
+                  inputMethod === "url" ? "btn-primary" : "btn-outline-primary"
+                }`}
+                onClick={() => setInputMethod("url")}
+              >
+                <i className="bi bi-link-45deg me-2"></i>
+                Enter URL
+              </button>
+            </div>
+
+            {inputMethod === "text" && (
+              <div className="mb-4">
+                <label htmlFor="newsText" className="form-label">
+                  Enter news content to analyze:
+                </label>
+                <textarea
+                  id="newsText"
+                  className={`form-control ${styles.textarea}`}
+                  rows={8}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Paste news article or snippet here..."
+                  disabled={isLoading}
+                />
+              </div>
+            )}
+
+            {inputMethod === "file" && (
+              <div className="mb-4">
+                <label className="form-label">
+                  Upload news article file (TXT only):
+                </label>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept=".txt"
+                  className="d-none"
+                />
+                <div className="d-flex align-items-center">
+                  <button
+                    className="btn btn-outline-secondary me-3"
+                    onClick={triggerFileInput}
+                  >
+                    <i className="bi bi-upload me-2"></i>
+                    Choose File
+                  </button>
+                  <span className="text-muted">
+                    {file ? file.name : "No file selected"}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {inputMethod === "url" && (
+              <div className="mb-4">
+                <label htmlFor="newsUrl" className="form-label">
+                  Enter news article URL:
+                </label>
+                <input
+                  id="newsUrl"
+                  type="url"
+                  className="form-control"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com/news-article"
+                  disabled={isLoading}
+                />
+              </div>
+            )}
           </div>
 
           <button
             className={`btn btn-primary ${styles.analyzeButton}`}
             onClick={checkNews}
-            disabled={isLoading || !text.trim()}
+            disabled={
+              isLoading ||
+              (inputMethod === "text" && !text.trim()) ||
+              (inputMethod === "file" && !file) ||
+              (inputMethod === "url" && !url.trim())
+            }
           >
             {isLoading ? (
               <>
