@@ -23,7 +23,9 @@
   margin-bottom: 3rem;
   color: var(--primary);
 }
-
+.header p {
+  color: #5e503f;
+}
 .headerIcon {
   font-size: 3rem;
   margin-bottom: 1rem;
@@ -40,8 +42,7 @@
 }
 
 .metricsHeader {
-  color: #273e54;
-  font-size: 1rem;
+  color: #2c3e50;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -50,9 +51,15 @@
   padding-bottom: 1rem;
 }
 
+.metricsHeader h3 {
+  font-size: 1.5rem;
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+}
 .lastUpdated {
   font-size: 0.85rem;
-  color: #7f8c8d;
+  color: #5e503f;
 }
 
 .metricsGrid {
@@ -132,7 +139,7 @@
 }
 
 .metricValue {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 500;
   color: #2c3e50;
   margin: 0.5rem 0;
@@ -145,7 +152,7 @@
 
 .metricTrend {
   font-size: 0.85rem;
-  color: #95a5a6;
+  color: #777;
 }
 
 /* Charts */
@@ -158,6 +165,9 @@
 .metricChart h4 {
   color: #2c3e50;
   font-size: 1.5rem;
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
 }
 .fullWidth {
   grid-column: 1 / -1;
@@ -199,7 +209,7 @@
   height: 150px;
   margin: 1.5rem auto;
   border-radius: 50%;
-  background: #f5f5f5;
+  background: #eeeeee;
 }
 
 .donutSegment {
@@ -214,12 +224,13 @@
 
 .donutCenter {
   position: absolute;
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   background: white;
+  color: #5e503f;
   border-radius: 50%;
-  top: 35px;
-  left: 35px;
+  top: 45px;
+  left: 45px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -230,7 +241,8 @@
 
 .donutCenter small {
   font-size: 0.7rem;
-  color: #95a5a6;
+  color: #5e503f;
+  font-weight: 600;
 }
 
 .legend {
@@ -244,6 +256,7 @@
 .legend span {
   display: flex;
   align-items: center;
+  color: #5e503f;
 }
 
 .legend i {
@@ -297,13 +310,16 @@
 }
 
 .analyzerCard h2 {
-  color: #2c3e50;
+  color: var(--primary);
   font-weight: 500;
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
   gap: 0.5rem;
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
 }
 
 .inputTabs {
@@ -340,9 +356,9 @@
 }
 
 .activeTab {
-  background-color: #5e503f;
+  background-color: #2c3e50;
   border: none;
-  color: #fff;
+  color: #bd945e;
 }
 .activeTab:hover {
   background-color: #2c3e50;
@@ -351,13 +367,18 @@
 }
 .textInput,
 .urlInput {
-  width: 100%;
+  width: 80%;
+  display: block;
+  margin: 0 auto;
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   margin-bottom: 1.5rem;
   resize: vertical;
   min-height: 150px;
+  @media (max-width: 769px) {
+    width: 100%;
+  }
 }
 
 .urlInput {
@@ -386,17 +407,17 @@
 }
 
 .analyzeButton {
+  max-width: 300px;
   width: 100%;
   padding: 1rem;
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 60px;
   font-size: 1rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  margin: 0 auto;
   gap: 0.5rem;
   transition: all 0.2s;
 }
@@ -404,12 +425,16 @@
 .analyzeButton:hover {
   background: var(--secondary);
 }
-
+.analyzeButton:hover .greenIcon {
+  color: #fff;
+}
 .analyzeButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
-
+.greenIcon {
+  color: #1abc9c;
+}
 /* Result Card */
 .resultCard {
   background: white;
@@ -645,4 +670,39 @@
     top: 30px;
     left: 30px;
   }
+}
+/* Simple Stats Styles */
+.simpleStats {
+  display: flex;
+  justify-content: space-around;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.statItem {
+  text-align: center;
+  min-width: 100px;
+}
+
+.statValue {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--secondary);
+  margin-bottom: 0.5rem;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #5e503f;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: #5e503f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }

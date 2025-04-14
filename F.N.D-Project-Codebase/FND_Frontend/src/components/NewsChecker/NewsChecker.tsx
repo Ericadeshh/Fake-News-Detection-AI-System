@@ -18,7 +18,10 @@ import {
   FaUserCheck,
   FaUserTimes,
 } from "react-icons/fa";
+import { LuFolderInput } from "react-icons/lu";
 import { BiAnalyse } from "react-icons/bi";
+import { MdOutlineFeedback } from "react-icons/md";
+import { RiTimerFlashLine } from "react-icons/ri";
 import styles from "./NewsChecker.module.css";
 
 type PredictionResult = {
@@ -77,35 +80,35 @@ const NewsChecker = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const fetchStats = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/stats`);
+      const data = await response.json();
+      const enhancedData = {
+        ...data,
+        accuracy:
+          Math.round(
+            (data.feedback_stats.correct /
+              (data.feedback_stats.correct + data.feedback_stats.incorrect)) *
+              100
+          ) || 0,
+        recent_activity: Array.from({ length: 24 }, (_, i) => ({
+          hour: i,
+          predictions: Math.floor(Math.random() * 20),
+        })),
+        input_methods: {
+          text: Math.floor(data.total_predictions * 0.6),
+          file: Math.floor(data.total_predictions * 0.25),
+          url: Math.floor(data.total_predictions * 0.15),
+        },
+      };
+      setStats(enhancedData);
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/stats`);
-        const data = await response.json();
-        // Add mock calculations for enhanced metrics
-        const enhancedData = {
-          ...data,
-          accuracy:
-            Math.round(
-              (data.feedback_stats.correct /
-                (data.feedback_stats.correct + data.feedback_stats.incorrect)) *
-                100
-            ) || 0,
-          recent_activity: Array.from({ length: 24 }, (_, i) => ({
-            hour: i,
-            predictions: Math.floor(Math.random() * 20), // Mock data
-          })),
-          input_methods: {
-            text: Math.floor(data.total_predictions * 0.6), // Mock distribution
-            file: Math.floor(data.total_predictions * 0.25),
-            url: Math.floor(data.total_predictions * 0.15),
-          },
-        };
-        setStats(enhancedData);
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      }
-    };
     fetchStats();
   }, [result]);
 
@@ -175,8 +178,7 @@ const NewsChecker = () => {
 
       if (!response.ok) throw new Error("Feedback submission failed");
       setFeedbackStatus("success");
-      const statsResponse = await fetch(`${API_BASE_URL}/stats`);
-      setStats(await statsResponse.json());
+      await fetchStats();
     } catch (err) {
       setFeedbackStatus("error");
       setError({
@@ -203,8 +205,7 @@ const NewsChecker = () => {
       if (!response.ok) throw new Error("Failed to change feedback analysis");
       setFeedbackStatus("changed");
       setResult({ ...result, prediction: oppositePrediction });
-      const statsResponse = await fetch(`${API_BASE_URL}/stats`);
-      setStats(await statsResponse.json());
+      await fetchStats();
     } catch (err) {
       setError({
         error: "Failed to change feedback analysis",
@@ -228,7 +229,8 @@ const NewsChecker = () => {
       <div className={styles.metricsDashboard}>
         <div className={styles.metricsHeader}>
           <h3>
-            <FaChartLine /> System Analytics Dashboard
+            <FaChartLine className={styles.greenIcon} /> System Analytics
+            Dashboard
           </h3>
           <div className={styles.lastUpdated}>
             Last updated: {new Date().toLocaleTimeString()}
@@ -289,7 +291,10 @@ const NewsChecker = () => {
 
           {/* Input Methods Chart */}
           <div className={`${styles.metricChart} ${styles.fullWidth}`}>
-            <h4>Input Method Distribution</h4>
+            <h4>
+              <LuFolderInput className={styles.greenIcon} /> Input Method
+              Distribution
+            </h4>
             <div className={styles.chartContainer}>
               <div
                 className={styles.chartBar}
@@ -326,7 +331,10 @@ const NewsChecker = () => {
 
           {/* Feedback Metrics */}
           <div className={styles.metricChart}>
-            <h4>Feedback Accuracy</h4>
+            <h4>
+              <MdOutlineFeedback className={styles.greenIcon} />
+              Feedback Accuracy
+            </h4>
             <div className={styles.donutChart}>
               <div
                 className={styles.donutSegment}
@@ -373,28 +381,32 @@ const NewsChecker = () => {
             </div>
           </div>
 
-          {/*
-          {/* Activity Graph */}
+          {/* Simple System Performance Stats */}
           <div className={styles.metricChart}>
-            <h4>Hourly Activity</h4>
-            <div className={styles.activityGraph}>
-              {stats.recent_activity.map((hour, i) => (
-                <div key={i} className={styles.activityBar}>
-                  <div
-                    className={styles.activityFill}
-                    style={{
-                      height: `${
-                        (hour.predictions /
-                          Math.max(
-                            ...stats.recent_activity.map((h) => h.predictions)
-                          )) *
-                        100
-                      }%`,
-                    }}
-                  ></div>
-                  <span>{hour.hour}h</span>
+            <h4>
+              <RiTimerFlashLine className={styles.greenIcon} />
+              System Performance
+            </h4>
+            <div className={styles.simpleStats}>
+              <div className={styles.statItem}>
+                <div className={styles.statValue}>{stats.accuracy}%</div>
+                <div className={styles.statLabel}>Feedback Accuracy</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statValue}>
+                  {stats.feedback_stats.correct}
                 </div>
-              ))}
+                <div className={styles.statLabel}>Correct Analyses</div>
+              </div>
+              <div className={styles.statItem}>
+                <div className={styles.statValue}>
+                  {stats.feedback_stats.incorrect}
+                </div>
+                <div className={styles.statLabel}>Incorrect Analyses</div>
+              </div>
+            </div>
+            <div className={styles.note}>
+              <FaInfoCircle /> Based on user feedback submissions
             </div>
           </div>
         </div>
@@ -415,7 +427,7 @@ const NewsChecker = () => {
       {!result ? (
         <div className={styles.analyzerCard}>
           <h2>
-            <BiAnalyse /> Analyze Content
+            <BiAnalyse className={styles.greenIcon} /> Analyze Content
           </h2>
 
           <div className={styles.inputTabs}>
@@ -427,9 +439,11 @@ const NewsChecker = () => {
                 }`}
                 onClick={() => setInputMethod(method)}
               >
-                {method === "text" && <FaFileAlt />}
-                {method === "file" && <FaUpload />}
-                {method === "url" && <FaLink />}
+                {method === "text" && (
+                  <FaFileAlt className={styles.greenIcon} />
+                )}
+                {method === "file" && <FaUpload className={styles.greenIcon} />}
+                {method === "url" && <FaLink className={styles.greenIcon} />}
                 {method.charAt(0).toUpperCase() + method.slice(1)}
               </button>
             ))}
@@ -486,8 +500,12 @@ const NewsChecker = () => {
             }
             className={styles.analyzeButton}
           >
-            {isLoading ? <FaSpinner className={styles.spin} /> : <FaSearch />}
-            {isLoading ? "Analyzing..." : "Analyze Authenticity"}
+            {isLoading ? (
+              <FaSpinner className={styles.spin} />
+            ) : (
+              <FaSearch className={styles.greenIcon} />
+            )}
+            &nbsp; {isLoading ? "Analyzing..." : "Analyze Authenticity"}
           </button>
         </div>
       ) : (
