@@ -1,10 +1,17 @@
 function Message() {
-  let name = "Eric";
-  if (name === "Eric") {
-    return <h1>Hello {name}</h1>;
-  } else {
-    return <h1>Hello Stranger</h1>;
-  }
+  return (
+    <div
+      style={{
+        height: "4.5rem",
+        backgroundColor: "white",
+        border: "none",
+        boxShadow: "none",
+        outline: "none",
+      }}
+    >
+      {/* You can add your message content here */}
+    </div>
+  );
 }
 
 export default Message;

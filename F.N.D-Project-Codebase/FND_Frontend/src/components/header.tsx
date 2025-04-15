@@ -64,6 +64,48 @@ const Header: React.FC = () => {
     },
   };
 
+  // Icon animation variants
+  const hamburgerIconVariants = {
+    open: {
+      rotate: 90,
+      scale: 1.1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 20,
+      },
+    },
+    closed: {
+      rotate: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 20,
+      },
+    },
+  };
+
+  const closeIconVariants = {
+    hover: {
+      rotate: 90,
+      scale: 1.1,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 15,
+      },
+    },
+    tap: {
+      scale: 0.9,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 15,
+      },
+    },
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -127,10 +169,16 @@ const Header: React.FC = () => {
           <motion.button
             className={styles.closeButton}
             onClick={closeMobileMenu}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover="hover"
+            whileTap="tap"
           >
-            <IoCloseSharp size={24} />
+            <motion.div
+              variants={closeIconVariants}
+              initial="closed"
+              animate="visible"
+            >
+              <IoCloseSharp size={24} />
+            </motion.div>
           </motion.button>
         </motion.li>
       )}
@@ -180,7 +228,12 @@ const Header: React.FC = () => {
             whileTap={{ scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <IoMenu size={24} />
+            <motion.div
+              animate={isMenuOpen ? "open" : "closed"}
+              variants={hamburgerIconVariants}
+            >
+              <IoMenu size={24} />
+            </motion.div>
           </motion.button>
         )}
       </div>

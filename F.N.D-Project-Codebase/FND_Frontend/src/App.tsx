@@ -5,12 +5,14 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import History from "./pages/History";
+import Message from "./components/message";
 
 function App() {
   return (
     <Router>
       <div className="App">
         <Header />
+        <Message />
         <main>
           <Routes>
             <Route path="/" element={<NewsChecker />} />

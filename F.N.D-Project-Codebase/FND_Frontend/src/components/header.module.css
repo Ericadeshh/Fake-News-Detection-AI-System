@@ -86,7 +86,7 @@
   transition: transform 0.3s ease;
 }
 
-/* Mobile Menu */
+/* Updated Icon Styles */
 .menuButton,
 .closeButton {
   background: none;
@@ -99,13 +99,31 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  transition: all 0.2s ease;
 }
 
 .closeButton {
   color: #fff;
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  margin: 1rem;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menuButton:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Ensure icons are properly centered */
+.menuButton svg,
+.closeButton svg {
+  display: block;
+  margin: 0 auto;
 }
 
 .mobileMenu {
