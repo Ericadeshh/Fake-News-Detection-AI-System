@@ -1,27 +1,31 @@
 .aboutSection {
-  padding: 4rem 0;
+  padding: 4rem 1.5rem;
   background-color: #f8f9fa;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .heading {
   color: #2c3e50;
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
   margin-bottom: 3rem;
-  position: relative;
+  text-align: center;
+  padding: 0 1rem;
 }
 
 .titleIcon {
   color: #1abc9c;
-  margin-right: 1rem;
+  margin-right: 1.5rem;
   vertical-align: middle;
+  font-size: 2.5rem;
 }
 
 .sectionTitle {
   color: #5e503f;
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: 2.2rem;
+  margin: 3rem 0 2rem;
   padding-bottom: 0.5rem;
   border-bottom: 3px solid #bd945e;
   display: inline-block;
@@ -29,10 +33,11 @@
 
 .sectionText {
   color: #777;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1.8;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto 3rem;
+  text-align: justify;
 }
 
 .featureCard {
@@ -42,6 +47,10 @@
   text-align: center;
   transition: all 0.3s ease;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .featureCard:hover {
@@ -49,15 +58,15 @@
 }
 
 .featureIcon {
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   background: #1abc9c;
   border-radius: 50%;
   margin: 0 auto 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #fff;
   transition: all 0.3s ease;
 }
@@ -70,54 +79,160 @@
 .featureTitle {
   color: #2c3e50;
   margin-bottom: 1rem;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .featureText {
   color: #777;
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
+  margin-bottom: 1.5rem;
 }
 
-.credits {
-  margin-top: 4rem;
-  padding: 2rem;
-  background-color: rgba(30, 30, 30, 0.05);
+.readMore {
+  color: #1abc9c;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.readMore:hover {
+  color: #bd945e;
+  transform: translateX(5px);
+}
+
+.expandedContent {
+  background: rgba(30, 30, 30, 0.03);
   border-radius: 10px;
-  text-align: center;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  text-align: left;
 }
 
-.creditText {
+.techTags {
+  margin-top: 1rem;
+  font-size: 0.9rem;
   color: #5e503f;
-  line-height: 1.8;
-  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+/* Credits Section */
+.credits {
+  margin-top: auto;
+  background: #2c3e50;
+  color: #fff;
+  padding: 4rem 2rem;
+  width: 100%;
+}
+
+.creditsContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  margin: 3rem 0;
+}
+
+.profileCard {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 15px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.profileCard:hover {
+  transform: translateY(-5px);
+}
+
+.profileImage {
+  width: 100px;
+  height: 100px;
+  background: #1abc9c;
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+}
+
+.techStack {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.techIcons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 2.5rem;
+  margin: 1.5rem 0;
+}
+
+.techIcons svg {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.techIcons svg:hover {
+  color: #bd945e;
+  transform: scale(1.2);
+}
+
+.copyright {
+  text-align: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 992px) {
+  .heading {
+    font-size: 2.2rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.8rem;
+  }
 }
 
 @media (max-width: 768px) {
   .heading {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
-  .sectionTitle {
-    font-size: 1.6rem;
+  .profileGrid {
+    grid-template-columns: 1fr;
   }
 
-  .sectionText {
-    font-size: 1rem;
-    padding: 0 1rem;
-  }
-
-  .featureCard {
-    margin-bottom: 1.5rem;
+  .techIcons {
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 576px) {
   .aboutSection {
-    padding: 2rem 0;
+    padding: 2rem 1rem;
   }
 
-  .heading {
-    font-size: 1.75rem;
+  .sectionText {
+    font-size: 1rem;
+  }
+
+  .featureCard {
+    padding: 1.5rem;
   }
 }

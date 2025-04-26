@@ -1,11 +1,11 @@
 import os
 import sys
-import pandas as pd
+import pandas as pd # type: ignore
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+import matplotlib.pyplot as plt # type: ignore
+import seaborn as sns # type: ignore
 from wordcloud import WordCloud
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer # type: ignore
 # TensorFlow imports with fallback
 try:
     from tensorflow.keras.models import Sequential, load_model
@@ -20,9 +20,9 @@ except ImportError:
     from keras.preprocessing.sequence import pad_sequences
     from keras.callbacks import EarlyStopping
     
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score # type: ignore
+from sklearn.model_selection import train_test_split # type: ignore
+from sklearn.linear_model import LogisticRegression # type: ignore
 from imblearn.over_sampling import SMOTE
 import joblib
 from pathlib import Path
