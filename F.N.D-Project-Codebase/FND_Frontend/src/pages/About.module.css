@@ -1,5 +1,8 @@
 .aboutSection {
-  padding: 4rem 1.5rem;
+  padding-top: 4rem;
+  padding-bottom: 0rem;
+  padding-left: 0rem;
+  padding-right: 0rem;
   background-color: #f8f9fa;
   min-height: 100vh;
   display: flex;
@@ -13,8 +16,14 @@
   margin-bottom: 3rem;
   text-align: center;
   padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
+.overview,
+.howItWorks {
+  padding: 1.5rem;
+}
 .titleIcon {
   color: #1abc9c;
   margin-right: 1.5rem;
@@ -23,12 +32,13 @@
 }
 
 .sectionTitle {
-  color: #5e503f;
+  color: #bd945e;
   font-size: 2.2rem;
   margin: 3rem 0 2rem;
   padding-bottom: 0.5rem;
-  border-bottom: 3px solid #bd945e;
+  border-bottom: 1px solid #5e503f;
   display: inline-block;
+  font-family: "Roboto Mono", monospace; /* Robotic-style font */
 }
 
 .sectionText {
@@ -144,10 +154,14 @@
 }
 
 .profileCard {
-  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  background: transparent;
   padding: 2rem;
   border-radius: 15px;
-  text-align: center;
+  text-align: left;
   transition: transform 0.3s ease;
 }
 
@@ -166,12 +180,33 @@
   justify-content: center;
   font-size: 2.5rem;
 }
-
+.profileImage img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.overlayIcon {
+  color: #bd945e;
+}
+.profileCard p {
+  color: #fff;
+  font-size: 0.95rem;
+}
+.profileCard h4 {
+  color: #1abc9c;
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 0;
+}
 .techStack {
   text-align: center;
   margin: 3rem 0;
 }
-
+.techStack h5 {
+  color: #bd945e;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+}
 .techIcons {
   display: flex;
   justify-content: center;

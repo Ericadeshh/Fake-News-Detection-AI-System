@@ -7,11 +7,13 @@ import {
   FaShieldAlt,
   FaCode,
   FaDatabase,
-  FaUniversity,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { SiTensorflow, SiFlask } from "react-icons/si";
 import { AiOutlineExpand } from "react-icons/ai";
+import { LiaChalkboardTeacherSolid } from "react-icons/lia";
+
+import passportImg from "../assets/passport.jpg";
 
 const About = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -150,26 +152,37 @@ const About = () => {
           <div className={styles.profileGrid}>
             <div className={styles.profileCard}>
               <div className={styles.profileImage}>
-                <FaUniversity />
+                <img src={passportImg} alt="Eric Lumumba's Passport" />
               </div>
-              <h4>Eric Lumumba</h4>
-              <p>
-                Developer • Computer Science (AI)
-                <br />
-                Karatina University
-              </p>
+              <div className={styles.profileOverlay}>
+                <FaCode className={styles.overlayIcon} />
+                <h4>Eric Lumumba</h4>
+                <p>
+                  Developer • Computer Science (AI Major)
+                  <br />
+                  email: lumumba.adegu@s.karu.ac.ke
+                  <br />
+                  KARATINA UNIVERSITY
+                </p>
+              </div>
             </div>
 
             <div className={styles.profileCard}>
               <div className={styles.profileImage}>
                 <FaCode />
               </div>
-              <h4>Mr. Thomas Njoroge</h4>
-              <p>
-                Research Supervisor
-                <br />
-                AI & Machine Learning Specialist
-              </p>
+
+              <div className={styles.profileOverlay}>
+                <LiaChalkboardTeacherSolid className={styles.overlayIcon} />
+                <h4>Mr. Thomas Njoroge</h4>
+                <p>
+                  Research Supervisor
+                  <br />
+                  email:tnjoroge@karu.ac.ke
+                  <br />
+                  AI & Machine Learning Specialist
+                </p>
+              </div>
             </div>
           </div>
 
