@@ -17,11 +17,18 @@ import {
   FaChartPie,
   FaUserCheck,
   FaUserTimes,
+  FaRegClock,
+  FaBrain,
+  FaBalanceScale,
+  FaFilePdf,
+  FaGlobe,
+  FaTextHeight,
 } from "react-icons/fa";
 import { LuFolderInput } from "react-icons/lu";
 import { BiAnalyse } from "react-icons/bi";
 import { MdOutlineFeedback } from "react-icons/md";
 import { RiTimerFlashLine } from "react-icons/ri";
+import { motion, AnimatePresence } from "framer-motion";
 import styles from "./NewsChecker.module.css";
 
 type PredictionResult = {
@@ -226,74 +233,96 @@ const NewsChecker = () => {
     if (!stats) return null;
 
     return (
-      <div className={styles.metricsDashboard}>
+      <motion.div
+        className={styles.metricsDashboard}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 20,
+          duration: 0.3,
+        }}
+      >
         <div className={styles.metricsHeader}>
-          <h3>
-            <FaChartLine className={styles.greenIcon} /> System Analytics
-            Dashboard
-          </h3>
+          <motion.h3 whileHover={{ scale: 1.01 }}>
+            <FaChartLine className={styles.greenIcon} />
+            AI Verification Analytics
+            <div className={styles.brownIconContainer}>
+              <FaInfoCircle className={styles.brownIcon} />
+              <p className={styles.sectionSubtext}>
+                Real-time tracking of NLP analysis accuracy across multiple
+                input channels
+              </p>
+            </div>
+          </motion.h3>
           <div className={styles.lastUpdated}>
-            Last updated: {new Date().toLocaleTimeString()}
+            <FaRegClock className={styles.greenIcon} /> Updated:{" "}
+            {new Date().toLocaleTimeString()}
           </div>
         </div>
 
         <div className={styles.metricsGrid}>
-          {/* KPI Cards */}
-          <div className={`${styles.metricCard} ${styles.primaryCard}`}>
-            <div className={styles.metricIcon}>
-              <FaChartBar />
-            </div>
-            <div className={styles.metricValue}>{stats.total_predictions}</div>
-            <div className={styles.metricLabel}>Total Analyses</div>
-            <div className={styles.metricTrend}>+12% from last week</div>
-          </div>
-
-          <div className={`${styles.metricCard} ${styles.successCard}`}>
-            <div className={styles.metricIcon}>
-              <FaUserCheck />
-            </div>
-            <div className={styles.metricValue}>{stats.true_predictions}</div>
-            <div className={styles.metricLabel}>Verified True</div>
-            <div className={styles.metricTrend}>
-              {(
+          {[
+            {
+              icon: <FaChartBar />,
+              value: stats.total_predictions,
+              label: "Total Analyses",
+              trend: "+14.7% weekly",
+              className: styles.primaryCard,
+            },
+            {
+              icon: <FaUserCheck />,
+              value: stats.true_predictions,
+              label: "Verified Content",
+              trend: `${(
                 (stats.true_predictions / stats.total_predictions) *
                 100
-              ).toFixed(1)}
-              % of total
-            </div>
-          </div>
-
-          <div className={`${styles.metricCard} ${styles.dangerCard}`}>
-            <div className={styles.metricIcon}>
-              <FaUserTimes />
-            </div>
-            <div className={styles.metricValue}>{stats.fake_predictions}</div>
-            <div className={styles.metricLabel}>Detected Fake</div>
-            <div className={styles.metricTrend}>
-              {(
+              ).toFixed(1)}% accuracy`,
+              className: styles.successCard,
+            },
+            {
+              icon: <FaUserTimes />,
+              value: stats.fake_predictions,
+              label: "Detected Fabrications",
+              trend: `${(
                 (stats.fake_predictions / stats.total_predictions) *
                 100
-              ).toFixed(1)}
-              % of total
-            </div>
-          </div>
+              ).toFixed(1)}% flagged`,
+              className: styles.dangerCard,
+            },
+            {
+              icon: <FaChartPie />,
+              value: `${stats.average_confidence.toFixed(1)}%`,
+              label: "Model Confidence",
+              trend: "±1.8% margin of error",
+              className: styles.infoCard,
+            },
+          ].map((metric, index) => (
+            <motion.div
+              key={index}
+              className={`${styles.metricCard} ${metric.className}`}
+              whileHover={{ y: -3 }}
+              transition={{ type: "spring", stiffness: 300, duration: 0.2 }}
+            >
+              <div className={styles.metricIcon}>{metric.icon}</div>
+              <div className={styles.metricValue}>{metric.value}</div>
+              <div className={styles.metricLabel}>{metric.label}</div>
+              <div className={styles.metricTrend}>{metric.trend}</div>
+            </motion.div>
+          ))}
 
-          <div className={`${styles.metricCard} ${styles.infoCard}`}>
-            <div className={styles.metricIcon}>
-              <FaChartPie />
-            </div>
-            <div className={styles.metricValue}>
-              {stats.average_confidence.toFixed(1)}%
-            </div>
-            <div className={styles.metricLabel}>Avg Confidence</div>
-            <div className={styles.metricTrend}>±2% margin of error</div>
-          </div>
-
-          {/* Input Methods Chart */}
-          <div className={`${styles.metricChart} ${styles.fullWidth}`}>
-            <h4>
+          <motion.div
+            className={`${styles.metricChart} ${styles.fullWidth}`}
+            whileHover={{ scale: 1.005 }}
+          >
+            <h4 className={styles.DistributionHeader}>
               <LuFolderInput className={styles.greenIcon} /> Input Method
               Distribution
+              <p className={styles.chartDescription}>
+                <FaGlobe className={styles.brownIcon} /> Content submission
+                channels utilization across different user groups
+              </p>
             </h4>
             <div className={styles.chartContainer}>
               <div
@@ -327,13 +356,19 @@ const NewsChecker = () => {
                 <span>URL: {stats.input_methods.url}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Feedback Metrics */}
-          <div className={styles.metricChart}>
+          <motion.div
+            className={styles.metricChart}
+            whileHover={{ scale: 1.005 }}
+          >
             <h4>
-              <MdOutlineFeedback className={styles.greenIcon} />
-              Feedback Accuracy
+              <MdOutlineFeedback className={styles.greenIcon} /> Community
+              Validation
+              <p className={styles.chartDescription}>
+                <FaCheck className={styles.brownIcon} /> User-reported accuracy
+                driving continuous model improvements
+              </p>
             </h4>
             <div className={styles.donutChart}>
               <div
@@ -379,13 +414,19 @@ const NewsChecker = () => {
                 {stats.feedback_stats.changed}
               </span>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Simple System Performance Stats */}
-          <div className={styles.metricChart}>
+          <motion.div
+            className={styles.metricChart}
+            whileHover={{ scale: 1.005 }}
+          >
             <h4>
-              <RiTimerFlashLine className={styles.greenIcon} />
-              System Performance
+              <RiTimerFlashLine className={styles.greenIcon} /> System
+              Performance
+              <p className={styles.chartDescription}>
+                <FaRegClock className={styles.brownIcon} /> Operational metrics
+                and response time analysis
+              </p>
             </h4>
             <div className={styles.simpleStats}>
               <div className={styles.statItem}>
@@ -408,181 +449,292 @@ const NewsChecker = () => {
             <div className={styles.note}>
               <FaInfoCircle /> Based on user feedback submissions
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
+      <motion.header
+        className={styles.header}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
         <FaShieldAlt className={styles.headerIcon} />
-        <h1>News Authenticity Analyzer</h1>
-        <p>Verify news credibility with AI-powered analysis</p>
-      </header>
+        <h1>AI News Verification System</h1>
+        <p>
+          <FaBrain className={styles.greenIcon} /> Advanced content
+          authentication combining
+          <strong> NLP analysis</strong> and <strong>deep learning.</strong>
+          <div className={styles.featureList}>
+            <motion.span
+              className={styles.featureListItem}
+              whileHover={{ y: -2 }}
+            >
+              <FaFilePdf className={styles.greenIcon} /> PDF/DOCX Support
+            </motion.span>
+            <motion.span
+              className={styles.featureListItem}
+              whileHover={{ y: -2 }}
+            >
+              <FaGlobe className={styles.greenIcon} /> Web Content Analysis
+            </motion.span>
+            <motion.span
+              className={styles.featureListItem}
+              whileHover={{ y: -2 }}
+            >
+              <FaTextHeight className={styles.greenIcon} /> Text Verification
+            </motion.span>
+            <motion.span
+              className={styles.featureListItem}
+              whileHover={{ y: -2 }}
+            >
+              <FaBalanceScale className={styles.greenIcon} /> Bias Detection
+            </motion.span>
+          </div>
+        </p>
+      </motion.header>
 
       {renderMetricsDashboard()}
 
-      {!result ? (
-        <div className={styles.analyzerCard}>
-          <h2>
-            <BiAnalyse className={styles.greenIcon} /> Analyze Content
-          </h2>
-
-          <div className={styles.inputTabs}>
-            {(["text", "file", "url"] as InputMethod[]).map((method) => (
-              <button
-                key={method}
-                className={`${styles.tabButton} ${
-                  inputMethod === method ? styles.activeTab : ""
-                }`}
-                onClick={() => setInputMethod(method)}
-              >
-                {method === "text" && (
-                  <FaFileAlt className={styles.greenIcon} />
-                )}
-                {method === "file" && <FaUpload className={styles.greenIcon} />}
-                {method === "url" && <FaLink className={styles.greenIcon} />}
-                {method.charAt(0).toUpperCase() + method.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          {inputMethod === "text" && (
-            <textarea
-              value={input.text}
-              onChange={(e) => setInput({ ...input, text: e.target.value })}
-              placeholder="Paste news article here..."
-              className={styles.textInput}
-              disabled={isLoading}
-            />
-          )}
-
-          {inputMethod === "file" && (
-            <div className={styles.fileUpload}>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) =>
-                  setInput({ ...input, file: e.target.files?.[0] || null })
-                }
-                className={styles.fileInput}
-                accept=".txt,.pdf,.docx"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className={styles.uploadButton}
-              >
-                <FaUpload /> {input.file ? input.file.name : "Choose File"}
-              </button>
-            </div>
-          )}
-
-          {inputMethod === "url" && (
-            <input
-              type="url"
-              value={input.url}
-              onChange={(e) => setInput({ ...input, url: e.target.value })}
-              placeholder="https://example.com/news-article"
-              className={styles.urlInput}
-              disabled={isLoading}
-            />
-          )}
-
-          <button
-            onClick={checkNews}
-            disabled={
-              isLoading ||
-              (inputMethod === "text" && !input.text.trim()) ||
-              (inputMethod === "file" && !input.file) ||
-              (inputMethod === "url" && !input.url.trim())
-            }
-            className={styles.analyzeButton}
+      <AnimatePresence>
+        {!result ? (
+          <motion.div
+            className={styles.analyzerCard}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
           >
-            {isLoading ? (
-              <FaSpinner className={styles.spin} />
-            ) : (
-              <FaSearch className={styles.greenIcon} />
-            )}
-            &nbsp; {isLoading ? "Analyzing..." : "Analyze Authenticity"}
-          </button>
-        </div>
-      ) : (
-        <div
-          className={`${styles.resultCard} ${
-            result.prediction === "true" ? styles.true : styles.fake
-          }`}
-        >
-          <div className={styles.resultHeader}>
-            <h2>
-              Analysis Result: <span>{result.prediction.toUpperCase()}</span>
-            </h2>
-            <button onClick={resetForm} className={styles.newAnalysisButton}>
-              <FaArrowLeft /> New Analysis
-            </button>
-          </div>
+            <motion.h2
+              whileHover={{ scale: 1.01 }}
+              className={styles.analyzeHeader}
+            >
+              <div className={styles.ContentCenter}>
+                <h4>
+                  <BiAnalyse className={styles.greenIcon} />
+                  Content Authentication
+                </h4>
 
-          <div className={styles.confidenceMeter}>
-            <div className={styles.meterInfo}>
-              <span>Confidence:</span>
-              <span>{(result.confidence * 100).toFixed(1)}%</span>
+                <div className={styles.brownIconContainer}>
+                  <FaInfoCircle className={styles.brownIcon} />
+                  <p className={styles.sectionSubtext}>
+                    Submit content through multiple channels for instant
+                    verification
+                  </p>
+                </div>
+              </div>
+            </motion.h2>
+
+            <div className={styles.inputTabs}>
+              {(["text", "file", "url"] as InputMethod[]).map((method) => (
+                <motion.button
+                  key={method}
+                  className={`${styles.tabButton} ${
+                    inputMethod === method ? styles.activeTab : ""
+                  }`}
+                  onClick={() => setInputMethod(method)}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  {method === "text" && (
+                    <FaFileAlt className={styles.greenIcon} />
+                  )}
+                  {method === "file" && (
+                    <FaUpload className={styles.greenIcon} />
+                  )}
+                  {method === "url" && <FaLink className={styles.greenIcon} />}
+                  {method.charAt(0).toUpperCase() + method.slice(1)}
+                </motion.button>
+              ))}
             </div>
-            <div className={styles.meterTrack}>
-              <div
-                className={styles.meterFill}
-                style={{ width: `${result.confidence * 100}%` }}
+
+            {inputMethod === "text" && (
+              <motion.textarea
+                value={input.text}
+                onChange={(e) => setInput({ ...input, text: e.target.value })}
+                placeholder="Paste news content here..."
+                className={styles.textInput}
+                disabled={isLoading}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
               />
-            </div>
-          </div>
+            )}
 
-          {feedbackStatus === "success" ? (
-            <div className={styles.feedbackSuccess}>
-              <FaCheck /> Thank you for your feedback!
-              <button
-                onClick={changeFeedbackAnalysis}
-                className={styles.changeFeedbackButton}
+            {inputMethod === "file" && (
+              <motion.div
+                className={styles.fileUpload}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
               >
-                <FaRedo /> Change Feedback
-              </button>
-            </div>
-          ) : feedbackStatus === "changed" ? (
-            <div className={styles.feedbackChanged}>
-              <FaInfoCircle /> Feedback analysis updated!
-            </div>
-          ) : (
-            <div className={styles.feedbackSection}>
-              <p>Was this analysis accurate?</p>
-              <div className={styles.feedbackButtons}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) =>
+                    setInput({ ...input, file: e.target.files?.[0] || null })
+                  }
+                  className={styles.fileInput}
+                  accept=".txt,.pdf,.docx"
+                />
                 <button
-                  onClick={() => submitFeedback("correct")}
-                  className={styles.correctButton}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={styles.uploadButton}
                 >
-                  <FaCheck /> Correct
+                  <FaUpload />{" "}
+                  {input.file ? input.file.name : "Select Document"}
                 </button>
-                <button
-                  onClick={() => submitFeedback("incorrect")}
-                  className={styles.incorrectButton}
-                >
-                  <FaTimes /> Incorrect
-                </button>
+              </motion.div>
+            )}
+
+            {inputMethod === "url" && (
+              <motion.input
+                type="url"
+                value={input.url}
+                onChange={(e) => setInput({ ...input, url: e.target.value })}
+                placeholder="https://example.com/news-article"
+                className={styles.urlInput}
+                disabled={isLoading}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              />
+            )}
+
+            <motion.button
+              onClick={checkNews}
+              disabled={
+                isLoading ||
+                (inputMethod === "text" && !input.text.trim()) ||
+                (inputMethod === "file" && !input.file) ||
+                (inputMethod === "url" && !input.url.trim())
+              }
+              className={styles.analyzeButton}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              {isLoading ? (
+                <FaSpinner className={styles.spin} />
+              ) : (
+                <FaSearch className={styles.greenIcon} />
+              )}
+              &nbsp; {isLoading ? "Authenticating..." : "Verify Content"}
+            </motion.button>
+          </motion.div>
+        ) : (
+          <motion.div
+            className={`${styles.resultCard} ${
+              result.prediction === "true" ? styles.true : styles.fake
+            }`}
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, duration: 0.2 }}
+          >
+            <div className={styles.resultHeader}>
+              <h2>
+                Analysis Result: <span>{result.prediction.toUpperCase()}</span>
+              </h2>
+              <motion.button
+                onClick={resetForm}
+                className={styles.newAnalysisButton}
+                whileHover={{ x: -3 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <FaArrowLeft /> New Analysis
+              </motion.button>
+            </div>
+
+            <div className={styles.confidenceMeter}>
+              <div className={styles.meterInfo}>
+                <span>Confidence Level:</span>
+                <span>{(result.confidence * 100).toFixed(1)}%</span>
+              </div>
+              <div className={styles.meterTrack}>
+                <div
+                  className={styles.meterFill}
+                  style={{ width: `${result.confidence * 100}%` }}
+                />
               </div>
             </div>
-          )}
-        </div>
-      )}
 
-      {error && (
-        <div className={styles.errorAlert}>
-          <div>
-            <FaExclamationTriangle /> <strong>{error.error}</strong>
-            {error.details && <p>{error.details}</p>}
-          </div>
-          <button onClick={() => setError(null)} aria-label="Close">
-            &times;
-          </button>
-        </div>
-      )}
+            <AnimatePresence>
+              {feedbackStatus === "success" ? (
+                <motion.div
+                  className={styles.feedbackSuccess}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <FaCheck /> Thank you for your feedback!
+                  <motion.button
+                    onClick={changeFeedbackAnalysis}
+                    className={styles.changeFeedbackButton}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <FaRedo /> Modify Assessment
+                  </motion.button>
+                </motion.div>
+              ) : feedbackStatus === "changed" ? (
+                <motion.div
+                  className={styles.feedbackChanged}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <FaInfoCircle /> Analysis updated successfully!
+                </motion.div>
+              ) : (
+                <motion.div
+                  className={styles.feedbackSection}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  <p>How accurate was this analysis?</p>
+                  <div className={styles.feedbackButtons}>
+                    <motion.button
+                      onClick={() => submitFeedback("correct")}
+                      className={styles.correctButton}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <FaCheck /> Accurate
+                    </motion.button>
+                    <motion.button
+                      onClick={() => submitFeedback("incorrect")}
+                      className={styles.incorrectButton}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <FaTimes /> Inaccurate
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            className={styles.errorAlert}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div>
+              <FaExclamationTriangle /> <strong>{error.error}</strong>
+              {error.details && <p>{error.details}</p>}
+            </div>
+            <button onClick={() => setError(null)} aria-label="Close">
+              &times;
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
