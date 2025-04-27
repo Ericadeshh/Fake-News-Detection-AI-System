@@ -1,0 +1,180 @@
+.analyzerCard {
+  background: #fff;
+  border-radius: 15px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sectionHeader h3 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin: 1rem 0;
+}
+
+.infoBox {
+  background: rgba(28, 188, 156, 0.08);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem auto;
+  max-width: 500px;
+}
+
+.infoBox p {
+  font-size: 0.9rem;
+  color: #5e503f;
+  margin: 0;
+}
+
+.inputTabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 30px;
+  background: #f8f9fa;
+  color: #2c3e50;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabButton:hover {
+  background: #e9ecef;
+}
+
+.activeTab {
+  background: #2c3e50;
+  color: #fff;
+}
+
+.activeTab .greenIcon {
+  color: #1abc9c;
+}
+
+.textInput,
+.urlInput {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.textInput:focus,
+.urlInput:focus {
+  outline: none;
+  border-color: #1abc9c;
+}
+
+.textInput {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.fileUpload {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.uploadButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #f8f9fa;
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  color: #5e503f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uploadButton:hover {
+  background: #e9ecef;
+  border-color: #1abc9c;
+}
+
+.fileNote {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+}
+
+.analyzeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 1rem auto 0;
+  padding: 1rem;
+  background: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.analyzeButton:hover {
+  background: #1abc9c;
+}
+
+.analyzeButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.greenIcon {
+  color: #1abc9c;
+}
+
+.brownIcon {
+  color: #5e503f;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .analyzerCard {
+    padding: 1.5rem;
+  }
+
+  .inputTabs {
+    flex-direction: column;
+  }
+
+  .tabButton {
+    justify-content: center;
+  }
+}

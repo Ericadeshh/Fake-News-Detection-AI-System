@@ -1,0 +1,40 @@
+.statusBanner {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  border-radius: 8px;
+  margin: 20px auto;
+  width: fit-content;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.online {
+  background: rgba(46, 204, 113, 0.15);
+  color: #27ae60;
+}
+
+.offline {
+  background: rgba(231, 76, 60, 0.15);
+  color: #c0392b;
+}
+
+.statusDot {
+  font-size: 0.8rem;
+  margin-left: 8px;
+}
+
+.onlineDot {
+  color: #27ae60;
+}
+
+.offlineDot {
+  color: #c0392b;
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}

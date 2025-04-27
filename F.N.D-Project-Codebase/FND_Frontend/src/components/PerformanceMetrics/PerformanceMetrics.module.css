@@ -1,0 +1,219 @@
+.metricsDashboard {
+  background: #fff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.metricsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.metricsHeader h3 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lastUpdated {
+  font-size: 0.9rem;
+  color: #5e503f;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.metricCard {
+  padding: 1.5rem;
+  border-radius: 10px;
+  background: #f8f9fa;
+  transition: transform 0.3s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-5px);
+}
+
+.primaryCard {
+  border-left: 4px solid #3498db;
+}
+.successCard {
+  border-left: 4px solid #2ecc71;
+}
+.dangerCard {
+  border-left: 4px solid #e74c3c;
+}
+.infoCard {
+  border-left: 4px solid #9b59b6;
+}
+
+.metricIcon {
+  font-size: 1.8rem;
+  color: #1abc9c;
+  margin-bottom: 1rem;
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.metricLabel {
+  font-size: 1rem;
+  color: #5e503f;
+  margin: 0.5rem 0;
+}
+
+.metricTrend {
+  font-size: 0.9rem;
+  color: #95a5a6;
+}
+
+.metricChart {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.chartContainer {
+  height: 40px;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.chartBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 500;
+  transition: width 0.5s ease;
+}
+
+.chartBar:nth-child(1) {
+  background: #3498db;
+}
+.chartBar:nth-child(2) {
+  background: #9b59b6;
+}
+.chartBar:nth-child(3) {
+  background: #1abc9c;
+}
+
+.donutChart {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 2rem auto;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.donutSegment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip: rect(0, 150px, 150px, 75px);
+  border-radius: 50%;
+}
+
+.donutCenter {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: #fff;
+  border-radius: 50%;
+  top: 25px;
+  left: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.simpleStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.statItem {
+  text-align: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1abc9c;
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #5e503f;
+}
+
+.greenIcon {
+  color: #1abc9c;
+}
+
+.brownIcon {
+  color: #5e503f;
+}
+
+@media (max-width: 768px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .simpleStats {
+    grid-template-columns: 1fr;
+  }
+
+  .metricsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}

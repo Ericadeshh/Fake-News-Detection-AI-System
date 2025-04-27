@@ -1,10 +1,19 @@
 src/
-├── components/
-│   ├── NewsChecker/
-│   │   ├── NewsChecker.tsx
-│   │   └── NewsChecker.module.css
-│   └── ... (other components if needed)
-├── types/
-│   └── prediction.d.ts
-├── App.tsx
-└── main.tsx
+  components/
+    FND/
+      Introduction/
+        Introduction.tsx
+        Introduction.module.css
+      ContentAuthentication/
+        ContentAuthentication.tsx
+        ContentAuthentication.module.css
+      PerformanceMetrics/
+        PerformanceMetrics.tsx
+        PerformanceMetrics.module.css
+      Feedbacks/
+        Feedbacks.tsx
+        Feedbacks.module.css
+      ServerStatus/
+        ServerStatus.tsx
+        ServerStatus.module.css
+    FND-Home.tsx
