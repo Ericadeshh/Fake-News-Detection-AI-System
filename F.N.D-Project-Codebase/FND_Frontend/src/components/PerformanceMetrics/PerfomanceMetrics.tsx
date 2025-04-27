@@ -34,6 +34,7 @@ type SystemStats = {
     file: number;
     url: number;
   };
+  accuracy: number; // Added accuracy field
 };
 
 interface PerformanceMetricsProps {
@@ -59,6 +60,7 @@ const defaultStats: SystemStats = {
     file: 314,
     url: 188,
   },
+  accuracy: Math.round((89 / (89 + 12)) * 100), // Added accuracy calculation
 };
 
 const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
@@ -76,8 +78,8 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
           <FaChartLine className={styles.greenIcon} />
           AI Verification Analytics
           <div className={styles.brownIconContainer}>
-            <FaInfoCircle className={styles.brownIcon} />
             <p className={styles.sectionSubtext}>
+              <FaInfoCircle className={styles.brownIcon} />
               Real-time tracking of NLP analysis accuracy across multiple input
               channels
             </p>
@@ -239,6 +241,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
         </motion.div>
 
         {/* System Performance */}
+
         <motion.div
           className={styles.metricChart}
           whileHover={{ scale: 1.005 }}
@@ -247,31 +250,29 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
             <RiTimerFlashLine className={styles.greenIcon} /> System Performance
             <p className={styles.chartDescription}>
               <FaRegClock className={styles.brownIcon} /> Operational metrics
-              overview
+              and response time analysis
             </p>
           </h4>
           <div className={styles.simpleStats}>
             <div className={styles.statItem}>
-              <div className={styles.statValue}>
-                {displayStats.average_confidence.toFixed(1)}%
-              </div>
-              <div className={styles.statLabel}>Avg Confidence</div>
+              <div className={styles.statValue}>{displayStats.accuracy}%</div>
+              <div className={styles.statLabel}>Feedback Accuracy</div>
             </div>
             <div className={styles.statItem}>
               <div className={styles.statValue}>
-                {displayStats.feedback_stats.changed}
+                {displayStats.feedback_stats.correct}
               </div>
-              <div className={styles.statLabel}>Revised Analyses</div>
+              <div className={styles.statLabel}>Correct Analyses</div>
             </div>
             <div className={styles.statItem}>
               <div className={styles.statValue}>
-                {displayStats.recent_activity.reduce(
-                  (acc, curr) => acc + curr.predictions,
-                  0
-                )}
+                {displayStats.feedback_stats.incorrect}
               </div>
-              <div className={styles.statLabel}>Hourly Activity</div>
+              <div className={styles.statLabel}>Incorrect Analyses</div>
             </div>
+          </div>
+          <div className={styles.note}>
+            <FaInfoCircle /> Based on user feedback submissions
           </div>
         </motion.div>
       </div>

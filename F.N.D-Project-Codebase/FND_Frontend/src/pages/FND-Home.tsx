@@ -5,7 +5,6 @@ import ContentAuthentication from "../components/ContentAuthentication/ContentAu
 import PerformanceMetrics from "../components/PerformanceMetrics/PerfomanceMetrics";
 import AnalysisResult from "../components/AnalysisResults/AnalysisResult";
 import Message from "../components/message";
-
 import styles from "./FND-Home.module.css";
 
 type PredictionResult = {
@@ -20,6 +19,7 @@ type SystemStats = {
   true_predictions: number;
   fake_predictions: number;
   average_confidence: number;
+  accuracy: number;
   feedback_stats: {
     correct: number;
     incorrect: number;
@@ -86,6 +86,10 @@ const FNDHome = () => {
       console.error("Failed to fetch stats:", error);
     }
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, [result]);
 
   useEffect(() => {
     fetchStats();
@@ -201,8 +205,11 @@ const FNDHome = () => {
   return (
     <div className={styles.container}>
       <Introduction />
-      <PerformanceMetrics stats={stats} />
-      {/* Error Message Display */}
+
+      <div id="performance-metrics">
+        <PerformanceMetrics stats={stats} />
+      </div>
+
       <Message
         message={
           error?.details
@@ -211,29 +218,32 @@ const FNDHome = () => {
         }
         type="error"
       />
-      <AnimatePresence mode="wait">
-        {!result ? (
-          <ContentAuthentication
-            inputMethod={inputMethod}
-            setInputMethod={setInputMethod}
-            input={input}
-            setInput={setInput}
-            checkNews={checkNews}
-            isLoading={isLoading}
-            fileInputRef={fileInputRef}
-          />
-        ) : (
-          <AnalysisResult
-            result={result}
-            resetForm={resetForm}
-            submitFeedback={submitFeedback}
-            feedbackStatus={feedbackStatus}
-            changeFeedbackAnalysis={changeFeedbackAnalysis}
-            error={error}
-            setError={setError}
-          />
-        )}
-      </AnimatePresence>
+
+      <div id="content-auth">
+        <AnimatePresence mode="wait">
+          {!result ? (
+            <ContentAuthentication
+              inputMethod={inputMethod}
+              setInputMethod={setInputMethod}
+              input={input}
+              setInput={setInput}
+              checkNews={checkNews}
+              isLoading={isLoading}
+              fileInputRef={fileInputRef}
+            />
+          ) : (
+            <AnalysisResult
+              result={result}
+              resetForm={resetForm}
+              submitFeedback={submitFeedback}
+              feedbackStatus={feedbackStatus}
+              changeFeedbackAnalysis={changeFeedbackAnalysis}
+              error={error}
+              setError={setError}
+            />
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

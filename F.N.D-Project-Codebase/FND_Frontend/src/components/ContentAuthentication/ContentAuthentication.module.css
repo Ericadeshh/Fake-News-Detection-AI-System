@@ -33,117 +33,124 @@
 
 .inputTabs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: 0.5rem;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
 }
 
 .tabButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 30px;
-  background: #f8f9fa;
+  width: auto;
+  min-width: 200px;
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border: 1px solid #2c3e50;
+  border-radius: 20px;
   color: #2c3e50;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  @media (max-width: 769px) {
+    width: auto;
+    max-width: 100px;
+    font-size: 0.9rem;
+  }
 }
-
 .tabButton:hover {
-  background: #e9ecef;
+  border: 1px solid #5e503f;
+  color: #5e503f;
+  transform: translateY(-1px);
 }
 
 .activeTab {
-  background: #2c3e50;
+  background-color: #2c3e50;
+  border: none;
   color: #fff;
 }
-
-.activeTab .greenIcon {
-  color: #1abc9c;
+.activeTab:hover {
+  background-color: #2c3e50;
+  color: #e6ab5f;
+  border: none;
 }
-
 .textInput,
 .urlInput {
-  width: 100%;
+  width: 80%;
+  display: block;
+  margin: 0 auto;
   padding: 1rem;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  margin: 1rem 0;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-}
-
-.textInput:focus,
-.urlInput:focus {
-  outline: none;
-  border-color: #1abc9c;
-}
-
-.textInput {
-  min-height: 150px;
+  border: 1px solid #9fdd02;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
   resize: vertical;
+  min-height: 100px;
+  @media (max-width: 769px) {
+    width: 100%;
+  }
+}
+
+.urlInput {
+  min-height: auto;
 }
 
 .fileUpload {
-  text-align: center;
-  margin: 1rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.fileInput {
+  display: none;
 }
 
 .uploadButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: #f8f9fa;
-  border: 2px dashed #ced4da;
-  border-radius: 8px;
-  color: #5e503f;
+  width: 100%;
+  padding: 1rem;
+  background: var(--light);
+  border: 2px dashed #ccc;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.uploadButton:hover {
-  background: #e9ecef;
-  border-color: #1abc9c;
-}
-
-.fileNote {
-  font-size: 0.85rem;
-  color: #6c757d;
-  margin-top: 0.5rem;
-}
-
-.analyzeButton {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+}
+
+.analyzeButton {
+  max-width: 30;
   width: 100%;
-  max-width: 300px;
-  margin: 1rem auto 0;
   padding: 1rem;
-  background: #2c3e50;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 30px;
+  border-radius: 60px;
   font-size: 1rem;
-  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease;
+  display: block;
+  margin: 0 auto;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
 .analyzeButton:hover {
-  background: #1abc9c;
+  background: var(--secondary);
 }
-
+.analyzeButton:hover .greenIcon {
+  color: #fff;
+}
 .analyzeButton:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
-
+.brownIconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.brownIcon {
+  color: #5e503f;
+}
 .greenIcon {
   color: #1abc9c;
 }
@@ -168,10 +175,6 @@
 @media (max-width: 768px) {
   .analyzerCard {
     padding: 1.5rem;
-  }
-
-  .inputTabs {
-    flex-direction: column;
   }
 
   .tabButton {
