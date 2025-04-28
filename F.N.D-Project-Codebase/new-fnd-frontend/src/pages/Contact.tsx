@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import ScrollToTopButton from "../components/ScrollToTop/ScrollToTop";
 import styles from "./Contact.module.css";
 import emailjs from "@emailjs/browser"; // Add this import
 import {
@@ -278,6 +279,7 @@ const Contact = () => {
         © {new Date().getFullYear()} Fake News Detection System
         <br />
         Karatina University Final Year Project - All rights reserved
+        <ScrollToTopButton />
       </motion.div>
     </motion.div>
   );

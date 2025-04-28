@@ -5,6 +5,7 @@ import ContentAuthentication from "../components/ContentAuthentication/ContentAu
 import PerformanceMetrics from "../components/PerformanceMetrics/PerformanceMetrics";
 import AnalysisResult from "../components/AnalysisResults/AnalysisResult";
 import Message from "../components/Message/Message";
+import ScrollToTopButton from "../components/ScrollToTop/ScrollToTop";
 import styles from "./FND-Home.module.css";
 
 type PredictionResult = {
@@ -244,6 +245,7 @@ const FNDHome = () => {
           )}
         </AnimatePresence>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 };

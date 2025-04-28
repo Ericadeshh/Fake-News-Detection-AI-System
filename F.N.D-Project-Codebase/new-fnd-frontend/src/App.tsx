@@ -4,6 +4,7 @@ import FNDHome from "./pages/FND-Home";
 import About from "../src/pages/About";
 import Contact from "../src/pages/Contact";
 import History from "../src/pages/History";
+import Footer from "../src/components/Footer/Footer";
 
 import "./App.css";
 
@@ -22,6 +23,8 @@ function App() {
             <Route path="/about" element={<About />} />
           </Routes>
         </main>
+
+        <Footer />
       </div>
     </Router>
   );
