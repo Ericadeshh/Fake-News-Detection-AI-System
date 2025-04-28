@@ -26,11 +26,35 @@
 }
 
 .infoBox p {
+  display: flex;
+  text-align: left;
   font-size: 0.9rem;
   color: #5e503f;
   margin: 0;
 }
-
+.infoLst {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.infoItem {
+  color: red;
+}
+.checkGreen {
+  color: #1abc9c;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+.checkCheese {
+  color: #f39c12;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+.checkRed {
+  color: #e74c3c;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
 .inputTabs {
   display: flex;
   flex-wrap: wrap;

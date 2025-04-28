@@ -8,6 +8,8 @@ import {
   FaInfoCircle,
   FaShieldAlt,
 } from "react-icons/fa";
+import { GiCheckMark } from "react-icons/gi";
+
 import styles from "./ContentAuthentication.module.css";
 
 type InputMethod = "text" | "file" | "url";
@@ -48,10 +50,24 @@ const ContentAuthentication = ({
         <FaShieldAlt className={styles.greenIcon} />
         <h3>Content Verification Portal</h3>
         <div className={styles.infoBox}>
-          <FaInfoCircle className={styles.brownIcon} />
           <p>
+            <FaInfoCircle className={styles.brownIcon} />
             Submit content through multiple channels for instant verification
           </p>
+          <ul className={styles.infoList}>
+            <li className={styles.infoItem}>
+              <GiCheckMark className={styles.checkGreen} />
+              Write/paste news articles for verification
+            </li>
+            <li className={styles.infoItem}>
+              <GiCheckMark className={styles.checkCheese} />
+              Upload documents (TXT, PDF, DOCX) for analysis
+            </li>
+            <li className={styles.infoItem}>
+              <GiCheckMark className={styles.checkRed} />
+              Provide URLs for online news articles
+            </li>
+          </ul>
         </div>
       </div>
 
