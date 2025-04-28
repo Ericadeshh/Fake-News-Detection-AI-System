@@ -44,10 +44,10 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #026f02;
-  font-size: 1rem;
+  color: #19cba8;
+  font-size: 1.3rem;
   font-weight: 500;
-  padding: 0.5rem 0;
+  padding: 1rem;
   position: relative;
   overflow: hidden;
 }
@@ -93,7 +93,7 @@
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  color: #2c3e50;
+  color: #4d4235;
   font-weight: 400;
   display: flex;
   align-items: center;
@@ -106,7 +106,6 @@
 
 .closeButton {
   color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(4px);
   margin: 1rem;
 }
@@ -118,7 +117,10 @@
 .menuButton:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
-
+.closeButton svg {
+  width: 40px;
+  height: 40px;
+}
 /* Ensure icons are properly centered */
 .menuButton svg,
 .closeButton svg {

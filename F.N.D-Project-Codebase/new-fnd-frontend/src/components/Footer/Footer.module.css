@@ -2,6 +2,8 @@
   background: linear-gradient(to right, #0d2d2a 0%, #1a1a1a 100%);
   color: #fff;
   padding: 4rem 2rem 2rem;
+  max-width: 1366px;
+  margin: 0 auto;
 }
 
 .footerContent {

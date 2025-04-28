@@ -232,7 +232,7 @@ const Header: React.FC = () => {
               animate={isMenuOpen ? "open" : "closed"}
               variants={hamburgerIconVariants}
             >
-              <IoMenu size={24} />
+              <IoMenu size={44} />
             </motion.div>
           </motion.button>
         )}
