@@ -180,3 +180,24 @@
     font-size: 0.85rem;
   }
 }
+/* Shield styles */
+.shieldContainer {
+  margin-bottom: 2rem;
+}
+
+.shieldIcon {
+  font-size: 4rem;
+  color: #1abc9c;
+  filter: drop-shadow(0 2px 4px rgba(26, 188, 156, 0.3));
+}
+
+/* Secondary subtitle */
+.secondarySubtitle {
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: #16a085;
+  letter-spacing: 0.1em;
+  margin: 0.5rem auto 1rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(94, 80, 63, 0.1);
+}

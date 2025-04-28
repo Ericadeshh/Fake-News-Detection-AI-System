@@ -8,11 +8,15 @@ import {
   FaBalanceScale,
   FaArrowDown,
   FaUser,
+  FaShieldAlt,
 } from "react-icons/fa";
 import styles from "./Introduction.module.css";
 
 const Introduction = () => {
+  const [shieldVisible, setShieldVisible] = useState(false);
   const [subtitleVisible, setSubtitleVisible] = useState(false);
+  const [secondarySubtitleVisible, setSecondarySubtitleVisible] =
+    useState(false);
   const [featuresVisible, setFeaturesVisible] = useState(false);
   const [typedTitle, setTypedTitle] = useState("");
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
@@ -28,7 +32,7 @@ const Introduction = () => {
       icon: <FaGlobe />,
       text: "Web Analysis",
       description: "Verify news articles directly from any webpage URL",
-      target: "content-auth",
+      target: "performance-metrics",
     },
     {
       icon: <FaTextHeight />,
@@ -44,42 +48,70 @@ const Introduction = () => {
     },
   ];
 
-  // Scrolling function with header offset
   const scrollToSection = (id: string) => {
     const section = document.getElementById(id);
     if (section) {
-      const yOffset = -80; // Adjust for fixed header height
+      const yOffset = -80;
       const y =
         section.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
   };
 
-  // Keep all existing useEffect and animations
   useEffect(() => {
-    const title = "AI News Verification System";
-    let currentIndex = 0;
+    // Animate shield first
+    setShieldVisible(true);
 
-    const typeInterval = setInterval(() => {
-      if (currentIndex <= title.length) {
-        setTypedTitle(title.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        setTimeout(() => {
-          setSubtitleVisible(true);
-          setTimeout(() => setFeaturesVisible(true), 500);
-        }, 300);
-      }
-    }, 80);
+    // Start title animation after shield settles
+    const titleTimeout = setTimeout(() => {
+      const title = "AI News Verification";
+      let currentIndex = 0;
 
-    return () => clearInterval(typeInterval);
+      const typeInterval = setInterval(() => {
+        if (currentIndex <= title.length) {
+          setTypedTitle(title.slice(0, currentIndex));
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            setSecondarySubtitleVisible(true);
+            setTimeout(() => {
+              setSubtitleVisible(true);
+              setTimeout(() => setFeaturesVisible(true), 500);
+            }, 300);
+          }, 300);
+        }
+      }, 80);
+
+      return () => clearInterval(typeInterval);
+    }, 1000);
+
+    return () => clearTimeout(titleTimeout);
   }, []);
 
   return (
     <motion.header className={styles.header} id="home">
       <div className={styles.headerContent}>
-        {/* Keep all existing motion animations */}
+        {/* Shield Icon Animation */}
+        <AnimatePresence>
+          {shieldVisible && (
+            <motion.div
+              initial={{ x: "100vw", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{
+                type: "spring",
+                stiffness: 50,
+                damping: 10,
+                duration: 1,
+              }}
+              className={styles.shieldContainer}
+            >
+              <FaShieldAlt className={styles.shieldIcon} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Title */}
         <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           {typedTitle}
           <motion.span
@@ -91,6 +123,21 @@ const Introduction = () => {
           </motion.span>
         </motion.h1>
 
+        {/* New Secondary Subtitle */}
+        <AnimatePresence>
+          {secondarySubtitleVisible && (
+            <motion.div
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 100 }}
+              className={styles.secondarySubtitle}
+            >
+              FAKE NEWS DETECTION AI SYSTEM
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Original Subtitle */}
         <AnimatePresence>
           {subtitleVisible && (
             <motion.p
@@ -102,6 +149,7 @@ const Introduction = () => {
               <FaBrain className={styles.greenIcon} /> Advanced content
               authentication combining
               <strong> NLP analysis</strong> and <strong>deep learning</strong>
+              <div className={styles.fnd_title}></div>
             </motion.p>
           )}
         </AnimatePresence>
@@ -121,7 +169,6 @@ const Introduction = () => {
                     onHoverStart={() => setHoveredFeature(index)}
                     onHoverEnd={() => setHoveredFeature(null)}
                   >
-                    {/* Added scroll handler to existing button */}
                     <motion.button
                       className={styles.featureListItem}
                       initial={{ scale: 0 }}
@@ -162,7 +209,6 @@ const Introduction = () => {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                {/* Added scroll handler to existing primary button */}
                 <motion.button
                   className={styles.primaryButton}
                   whileHover={{ y: -2, scale: 1.02 }}
@@ -172,7 +218,6 @@ const Introduction = () => {
                   <FaArrowDown /> Verify News
                 </motion.button>
 
-                {/* Preserved secondary button */}
                 <motion.button
                   className={styles.secondaryButton}
                   whileHover={{ y: -2, scale: 1.02 }}
