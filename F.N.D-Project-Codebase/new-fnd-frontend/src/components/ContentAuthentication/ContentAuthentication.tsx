@@ -88,10 +88,12 @@ const ContentAuthentication = ({
                 whileTap={{ scale: 0.98 }}
               >
                 {method === "text" && (
-                  <FaFileAlt className={styles.greenIcon} />
+                  <FaFileAlt className={styles.checkGreen} />
                 )}
-                {method === "file" && <FaUpload className={styles.greenIcon} />}
-                {method === "url" && <FaLink className={styles.greenIcon} />}
+                {method === "file" && (
+                  <FaUpload className={styles.checkCheese} />
+                )}
+                {method === "url" && <FaLink className={styles.checkRed} />}
                 {method.charAt(0).toUpperCase() + method.slice(1)}
               </motion.button>
             ))}

@@ -14,6 +14,25 @@ import {
 import { MdOutlineFeedback } from "react-icons/md";
 import { LuFolderInput } from "react-icons/lu";
 import styles from "./PerformanceMetrics.module.css";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+} from "recharts";
+import { CSSProperties, useEffect, useState } from "react";
+
+interface DonutSegmentStyle extends CSSProperties {
+  "--value": number;
+  "--total": number;
+  "--color": string;
+}
 
 type SystemStats = {
   total_predictions: number;
@@ -34,7 +53,7 @@ type SystemStats = {
     file: number;
     url: number;
   };
-  accuracy: number; // Added accuracy field
+  accuracy: number;
 };
 
 interface PerformanceMetricsProps {
@@ -53,18 +72,46 @@ const defaultStats: SystemStats = {
   },
   recent_activity: Array.from({ length: 24 }, (_, i) => ({
     hour: i,
-    predictions: Math.floor(Math.random() * 20),
+    predictions: Math.floor(Math.random() * 20 + 5),
   })),
   input_methods: {
     text: 752,
     file: 314,
     url: 188,
   },
-  accuracy: Math.round((89 / (89 + 12)) * 100), // Added accuracy calculation
+  accuracy: 88,
 };
 
 const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
-  const displayStats = stats || defaultStats;
+  const [displayStats, setDisplayStats] = useState<SystemStats>(defaultStats);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [usingDemoData, setUsingDemoData] = useState(false);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/stats");
+        if (!response.ok) throw new Error("Server not responding");
+        const serverStats = await response.json();
+        setDisplayStats(serverStats);
+        setLastUpdate(new Date());
+        setUsingDemoData(false);
+      } catch (error) {
+        console.log("Using demo data:", error);
+        setUsingDemoData(true);
+        setLastUpdate(new Date());
+      }
+    };
+
+    if (stats) {
+      setDisplayStats(stats);
+      setLastUpdate(new Date());
+    } else {
+      fetchStats();
+      const interval = setInterval(fetchStats, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [stats]);
 
   return (
     <motion.div
@@ -80,14 +127,15 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
           <div className={styles.brownIconContainer}>
             <p className={styles.sectionSubtext}>
               <FaInfoCircle className={styles.brownIcon} />
-              Real-time tracking of NLP analysis accuracy across multiple input
-              channels
+              {usingDemoData
+                ? "Demo data shown - Server offline"
+                : "Real-time tracking of NLP analysis accuracy"}
             </p>
           </div>
         </motion.h3>
         <div className={styles.lastUpdated}>
           <FaRegClock className={styles.greenIcon} /> Updated:{" "}
-          {new Date().toLocaleTimeString()}
+          {lastUpdate.toLocaleTimeString()}
         </div>
       </div>
 
@@ -141,144 +189,258 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
           </motion.div>
         ))}
 
-        {/* Input Method Distribution */}
+        <div className={styles.groupedCharts}>
+          <motion.div
+            className={`${styles.metricChart} ${styles.fullWidth}`}
+            whileHover={{ scale: 1.005 }}
+          >
+            <h4 className={styles.DistributionHeader}>
+              <LuFolderInput className={styles.greenIcon} /> Input Method
+              Distribution
+              <p className={styles.chartDescription}>
+                <FaGlobe className={styles.brownIcon} /> Content submission
+                channels utilization
+              </p>
+            </h4>
+            <p className={styles.inputDistributionDescription}>
+              A breakdown of how users submit content for analysis, showing the
+              frequency of submissions through text input, file uploads, and URL
+              links.
+            </p>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={[
+                  { name: "Text", value: displayStats.input_methods.text },
+                  { name: "File", value: displayStats.input_methods.file },
+                  { name: "URL", value: displayStats.input_methods.url },
+                ]}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#1abc9c" />
+              </BarChart>
+            </ResponsiveContainer>
+            <div className={styles.inputMethodStats}>
+              <p>
+                Text: {displayStats.input_methods.text} (
+                {(
+                  (displayStats.input_methods.text /
+                    displayStats.total_predictions) *
+                  100
+                ).toFixed(1)}
+                %)
+              </p>
+              <p>
+                File: {displayStats.input_methods.file} (
+                {(
+                  (displayStats.input_methods.file /
+                    displayStats.total_predictions) *
+                  100
+                ).toFixed(1)}
+                %)
+              </p>
+              <p>
+                URL: {displayStats.input_methods.url} (
+                {(
+                  (displayStats.input_methods.url /
+                    displayStats.total_predictions) *
+                  100
+                ).toFixed(1)}
+                %)
+              </p>
+              <p>Total: {displayStats.total_predictions}</p>
+            </div>
+          </motion.div>
+
+          <div className={styles.validations}>
+            <motion.div
+              className={styles.metricChart}
+              whileHover={{ scale: 1.005 }}
+            >
+              <h4>
+                <RiTimerFlashLine className={styles.greenIcon} /> System
+                Performance
+                <p className={styles.chartDescription}>
+                  <FaRegClock className={styles.brownIcon} /> Operational
+                  metrics and response time analysis
+                </p>
+              </h4>
+              <div className={styles.simpleStats}>
+                <div className={styles.statItem}>
+                  <div className={styles.statValue}>
+                    {displayStats.accuracy}%
+                  </div>
+                  <div className={styles.statLabel}>Feedback Accuracy</div>
+                </div>
+                <div className={styles.statItem}>
+                  <div className={styles.statValue}>
+                    {displayStats.feedback_stats.correct}
+                  </div>
+                  <div className={styles.statLabel}>Correct Analyses</div>
+                </div>
+                <div className={styles.statItem}>
+                  <div className={styles.statValue}>
+                    {displayStats.feedback_stats.incorrect}
+                  </div>
+                  <div className={styles.statLabel}>Incorrect Analyses</div>
+                </div>
+              </div>
+              <div className={styles.note}>
+                <FaInfoCircle /> Based on user feedback submissions
+              </div>
+            </motion.div>
+
+            <motion.div
+              className={styles.metricChart}
+              whileHover={{ scale: 1.005 }}
+            >
+              <h4>
+                <MdOutlineFeedback className={styles.greenIcon} /> Community
+                Validation
+                <p className={styles.chartDescription}>
+                  <FaCheck className={styles.brownIcon} /> User-reported
+                  accuracy metrics
+                </p>
+              </h4>
+              <div className={styles.donutChart}>
+                <div
+                  className={styles.donutSegment}
+                  style={
+                    {
+                      "--value": displayStats.feedback_stats.correct,
+                      "--total":
+                        displayStats.feedback_stats.correct +
+                        displayStats.feedback_stats.incorrect,
+                      "--color": "#1abc9c",
+                    } as DonutSegmentStyle
+                  }
+                ></div>
+                <div
+                  className={styles.donutSegment}
+                  style={
+                    {
+                      "--value": displayStats.feedback_stats.incorrect,
+                      "--total":
+                        displayStats.feedback_stats.correct +
+                        displayStats.feedback_stats.incorrect,
+                      "--color": "#e74c3c",
+                    } as DonutSegmentStyle
+                  }
+                ></div>
+                <div className={styles.donutCenter}>
+                  <div>
+                    {Math.round(
+                      (displayStats.feedback_stats.correct /
+                        (displayStats.feedback_stats.correct +
+                          displayStats.feedback_stats.incorrect)) *
+                        100 || 0
+                    )}
+                    %
+                  </div>
+                  <small>Accuracy</small>
+                </div>
+              </div>
+              <div className={styles.legend}>
+                <span>
+                  <i style={{ background: "#1abc9c" }}></i> Correct:{" "}
+                  {displayStats.feedback_stats.correct}
+                </span>
+                <span>
+                  <i style={{ background: "#e74c3c" }}></i> Incorrect:{" "}
+                  {displayStats.feedback_stats.incorrect}
+                </span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
         <motion.div
           className={`${styles.metricChart} ${styles.fullWidth}`}
           whileHover={{ scale: 1.005 }}
         >
-          <h4 className={styles.DistributionHeader}>
-            <LuFolderInput className={styles.greenIcon} /> Input Method
-            Distribution
+          <h4>
+            <FaRegClock className={styles.greenIcon} /> Recent Activity
             <p className={styles.chartDescription}>
-              <FaGlobe className={styles.brownIcon} /> Content submission
-              channels utilization
+              <FaInfoCircle className={styles.brownIcon} /> Predictions over the
+              last 24 hours
             </p>
           </h4>
-          <p className={styles.inputDistributionDescription}>
-            A breakdown of how users submit content for analysis, showing the
-            frequency of submissions through text input, file uploads, and URL
-            links.
-          </p>
-          <div className={styles.chartContainer}>
-            {[
-              { type: "text", value: displayStats.input_methods.text },
-              { type: "file", value: displayStats.input_methods.file },
-              { type: "url", value: displayStats.input_methods.url },
-            ].map((method, index) => (
-              <div
-                key={index}
-                className={styles.chartBar}
-                style={{
-                  width: `${
-                    (method.value / displayStats.total_predictions) * 100
-                  }%`,
+
+          <div className={styles.chartExplanation}>
+            <p>
+              This timeline shows the number of content verifications performed
+              each hour.
+              <br />
+              <span className={styles.axisLabel}>X-Axis:</span> Hour of day
+              (24-hour format)
+              <br />
+              <span className={styles.axisLabel}>Y-Axis:</span> Number of
+              predictions
+            </p>
+          </div>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              data={displayStats.recent_activity}
+              margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+              <XAxis
+                dataKey="hour"
+                label={{
+                  value: "Hour of Day",
+                  position: "bottom",
+                  fill: "#5e503f",
+                  fontSize: 12,
                 }}
-              >
-                <span>
-                  {method.type}: {method.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Community Validation */}
-        <motion.div
-          className={styles.metricChart}
-          whileHover={{ scale: 1.005 }}
-        >
-          <h4>
-            <MdOutlineFeedback className={styles.greenIcon} /> Community
-            Validation
-            <p className={styles.chartDescription}>
-              <FaCheck className={styles.brownIcon} /> User-reported accuracy
-              metrics
-            </p>
-          </h4>
-          <div className={styles.donutChart}>
-            <div
-              className={styles.donutSegment}
-              style={
-                {
-                  "--value": displayStats.feedback_stats.correct,
-                  "--total":
-                    displayStats.feedback_stats.correct +
-                    displayStats.feedback_stats.incorrect,
-                  "--color": "#1abc9c",
-                } as React.CSSProperties
-              }
-            ></div>
-            <div
-              className={styles.donutSegment}
-              style={
-                {
-                  "--value": displayStats.feedback_stats.incorrect,
-                  "--total":
-                    displayStats.feedback_stats.correct +
-                    displayStats.feedback_stats.incorrect,
-                  "--color": "#e74c3c",
-                } as React.CSSProperties
-              }
-            ></div>
-            <div className={styles.donutCenter}>
-              <div>
-                {Math.round(
-                  (displayStats.feedback_stats.correct /
-                    (displayStats.feedback_stats.correct +
-                      displayStats.feedback_stats.incorrect)) *
-                    100 || 0
+                tick={{ fill: "#5e503f" }}
+              />
+              <YAxis
+                label={{
+                  value: "Predictions",
+                  angle: -90,
+                  position: "left",
+                  fill: "#5e503f",
+                  fontSize: 12,
+                }}
+                tick={{ fill: "#5e503f" }}
+              />
+              <Tooltip
+                contentStyle={{
+                  background: "#fff",
+                  border: "1px solid #1abc9c",
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 8px rgba(94, 80, 63, 0.1)",
+                }}
+              />
+              <Legend
+                wrapperStyle={{ paddingTop: 20 }}
+                formatter={() => (
+                  <span className={styles.legendText}>Predictions</span>
                 )}
-                %
-              </div>
-              <small>Accuracy</small>
-            </div>
-          </div>
-          <div className={styles.legend}>
-            <span>
-              <i style={{ background: "#1abc9c" }}></i> Correct:{" "}
-              {displayStats.feedback_stats.correct}
-            </span>
-            <span>
-              <i style={{ background: "#e74c3c" }}></i> Incorrect:{" "}
-              {displayStats.feedback_stats.incorrect}
-            </span>
-          </div>
-        </motion.div>
-
-        {/* System Performance */}
-
-        <motion.div
-          className={styles.metricChart}
-          whileHover={{ scale: 1.005 }}
-        >
-          <h4>
-            <RiTimerFlashLine className={styles.greenIcon} /> System Performance
-            <p className={styles.chartDescription}>
-              <FaRegClock className={styles.brownIcon} /> Operational metrics
-              and response time analysis
-            </p>
-          </h4>
-          <div className={styles.simpleStats}>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{displayStats.accuracy}%</div>
-              <div className={styles.statLabel}>Feedback Accuracy</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>
-                {displayStats.feedback_stats.correct}
-              </div>
-              <div className={styles.statLabel}>Correct Analyses</div>
-            </div>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>
-                {displayStats.feedback_stats.incorrect}
-              </div>
-              <div className={styles.statLabel}>Incorrect Analyses</div>
-            </div>
-          </div>
-          <div className={styles.note}>
-            <FaInfoCircle /> Based on user feedback submissions
-          </div>
+              />
+              <Line
+                type="monotone"
+                dataKey="predictions"
+                stroke="#1abc9c"
+                strokeWidth={2}
+                dot={{ fill: "#1abc9c", strokeWidth: 2 }}
+                activeDot={{
+                  r: 8,
+                  fill: "#fff",
+                  stroke: "#1abc9c",
+                  strokeWidth: 2,
+                  style: {
+                    filter: "drop-shadow(0 2px 4px rgba(26, 188, 156, 0.3))",
+                  },
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </motion.div>
       </div>
     </motion.div>

@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "../src/components/Header/header";
-import FNDHome from "./pages/FND-Home";
-import About from "../src/pages/About";
-import Contact from "../src/pages/Contact";
-import History from "../src/pages/History";
+import FNDHome from "./pages/Homepage/FND-Home";
+import About from "../src/pages/About/About";
+import Contact from "./pages/contact/Contact";
+import History from "./pages/History/History";
 import Footer from "../src/components/Footer/Footer";
 
 import "./App.css";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import ScrollToTopButton from "../components/ScrollToTop/ScrollToTop";
+import ScrollToTopButton from "../../components/ScrollToTop/ScrollToTop";
 import styles from "./Contact.module.css";
 import emailjs from "@emailjs/browser"; // Add this import
 import {

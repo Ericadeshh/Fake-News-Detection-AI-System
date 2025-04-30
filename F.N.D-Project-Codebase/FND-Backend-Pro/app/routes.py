@@ -1,8 +1,8 @@
 import sys
 import os
 from flask import Blueprint, request, jsonify
-from bs4 import BeautifulSoup # type: ignore
-import requests # type: ignore
+from bs4 import BeautifulSoup  # type: ignore
+import requests  # type: ignore
 import PyPDF2
 import docx
 import io
@@ -10,8 +10,8 @@ from app.models import Conversation
 from app import db
 from app.ai_service import ai_service
 import logging
-from datetime import datetime
-from sqlalchemy import text
+from datetime import datetime, timedelta
+from sqlalchemy import text, extract, func
 import time
 
 bp = Blueprint('routes', __name__)
@@ -314,19 +314,53 @@ def get_stats():
         return _build_cors_preflight_response()
     
     try:
+        # Calculate recent activity (last 24 hours)
+        now = datetime.utcnow()
+        twenty_four_hours_ago = now - timedelta(hours=24)
+        
+        recent_activity = db.session.query(
+            extract('hour', Conversation.created_at).label('hour'),
+            func.count(Conversation.id).label('predictions')
+        ).filter(
+            Conversation.created_at >= twenty_four_hours_ago
+        ).group_by('hour').all()
+
+        # Convert to {hour: count} format and fill missing hours
+        activity_dict = {int(hour): count for hour, count in recent_activity}
+        recent_activity_data = []
+        for hour in range(24):
+            recent_activity_data.append({
+                'hour': hour,
+                'predictions': activity_dict.get(hour, 0)
+            })
+
         stats = {
             'total_predictions': Conversation.query.count(),
             'true_predictions': Conversation.query.filter_by(prediction='true').count(),
             'fake_predictions': Conversation.query.filter_by(prediction='fake').count(),
             'average_confidence': db.session.query(
-                db.func.avg(Conversation.confidence)
+                func.avg(Conversation.confidence)
             ).scalar() or 0,
             'feedback_stats': {
                 'correct': Conversation.query.filter_by(feedback='correct').count(),
-                'incorrect': Conversation.query.filter_by(feedback='incorrect').count()
+                'incorrect': Conversation.query.filter_by(feedback='incorrect').count(),
+                'changed': Conversation.query.filter(
+                    Conversation.edited_prediction.isnot(None)).count(),
             },
-            'edited_predictions': Conversation.query.filter(Conversation.edited_prediction.isnot(None)).count()
-        }
+            'recent_activity': recent_activity_data,
+            'input_methods': {
+                'text': Conversation.query.filter_by(input_type='text').count(),
+                'file': Conversation.query.filter_by(input_type='file').count(),
+                'url': Conversation.query.filter_by(input_type='url').count(),
+            },
+            'accuracy': round((Conversation.query.filter_by(feedback='correct').count() / 
+                            (Conversation.query.filter_by(feedback='correct').count() +
+                             Conversation.query.filter_by(feedback='incorrect').count()) * 100) 
+                        if (Conversation.query.filter_by(feedback='correct').count() +
+                            Conversation.query.filter_by(feedback='incorrect').count()) > 0 
+                        else 0)
+        }  # Fixed missing parenthesis here
+        
         response = jsonify(stats)
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response

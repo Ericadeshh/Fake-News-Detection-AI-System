@@ -12,8 +12,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SiTensorflow, SiFlask } from "react-icons/si";
 import { AiOutlineExpand } from "react-icons/ai";
 import { LiaChalkboardTeacherSolid } from "react-icons/lia";
-import ScrollToTopButton from "../components/ScrollToTop/ScrollToTop";
-import passportImg from "../assets/passport.jpg";
+import ScrollToTopButton from "../../components/ScrollToTop/ScrollToTop";
+import passportImg from "../../assets/passport.jpg";
 
 const About = () => {
   const [isMounted, setIsMounted] = useState(false);

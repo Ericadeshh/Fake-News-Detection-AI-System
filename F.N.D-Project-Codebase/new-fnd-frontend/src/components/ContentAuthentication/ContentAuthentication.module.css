@@ -45,13 +45,13 @@
   color: #5e503f;
   margin: 0;
 }
-.infoLst {
+.infoList {
   padding: 0;
   margin: 0;
 }
 .infoItem {
   list-style-type: none;
-  color: #777;
+  color: #5e503f;
   font-size: 0.9rem;
   text-align: left;
 }
@@ -84,7 +84,7 @@
   min-width: 150px;
   padding: 0.5rem 1rem;
   background-color: #fff;
-  border: 1px solid #2c3e5049;
+  border: 1px solid #1abc9c;
   border-radius: 20px;
   color: #2c3e50;
   font-size: 1rem;
@@ -99,8 +99,8 @@
   }
 }
 .tabButton:hover {
-  border: 1px solid #5e503fa1;
-  color: #5e503f;
+  border: 1px solid #f39c12;
+  color: #f39c12;
   transform: translateY(-1px);
 }
 
@@ -117,20 +117,26 @@
 .textInput,
 .urlInput {
   width: 100%;
-  min-width: 450px;
+  max-width: 600px;
   display: block;
   margin: 0 auto;
   padding: 1rem;
   padding-top: 1.4rem;
-  border: 2px solid #9fdd02;
+  border: 2px solid #f39c12;
   border-radius: 60px;
   resize: vertical;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 1rem;
   background: #fff;
-  @media (max-width: 769px) {
-    width: 100%;
-    max-width: 800px;
+}
+
+@media (max-width: 769px) {
+  .textInput,
+  .urlInput {
+    max-width: none;
+    padding: 0.8rem;
+    padding-top: 1.2rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -166,7 +172,7 @@
   width: 100%;
   padding: 1rem;
   background: var(--light);
-  border: 2px dashed #ccc;
+  border: 2px dashed #f39c12;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
@@ -188,6 +194,14 @@
   margin: 0 auto;
   gap: 0.5rem;
   transition: all 0.2s;
+}
+
+@media (max-width: 769px) {
+  .analyzeButton {
+    width: 100%;
+    max-width: 300px;
+    margin-top: 1rem;
+  }
 }
 
 .analyzeButton:hover {
@@ -240,7 +254,6 @@
   }
 }
 
-/* Floating label animations */
 .textInputContainer,
 .urlInputContainer {
   position: relative;
@@ -252,7 +265,7 @@
   position: absolute;
   left: 1.2rem;
   top: 1rem;
-  color: #888;
+  color: #5e503f;
   pointer-events: none;
   background: #fff;
   padding: 0 0.3rem;
@@ -270,7 +283,6 @@
   color: #1abc9c;
 }
 
-/* File upload animations */
 .uploadButton {
   transition: all 0.3s ease;
   gap: 0.8rem;
@@ -282,14 +294,15 @@
   color: #666;
 }
 
-/* Responsive adjustments */
 @media (max-width: 769px) {
   .textInputContainer,
   .urlInputContainer {
     width: 100%;
+    margin-bottom: 1rem;
   }
 
   .floatingLabel {
     font-size: 0.9rem;
+    left: 1rem;
   }
 }
