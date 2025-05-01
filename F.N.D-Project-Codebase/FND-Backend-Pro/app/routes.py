@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from bs4 import BeautifulSoup  # type: ignore
 import requests  # type: ignore
 import PyPDF2
@@ -13,9 +13,14 @@ import logging
 from datetime import datetime, timedelta
 from sqlalchemy import text, extract, func
 import time
+from threading import Lock
 
 bp = Blueprint('routes', __name__)
 logger = logging.getLogger(__name__)
+
+# Global list to manage SSE clients
+sse_clients = []
+sse_lock = Lock()
 
 def _build_cors_preflight_response():
     response = jsonify({'status': 'success'})
@@ -195,6 +200,14 @@ def predict():
         db.session.commit()
         request_data['db_time'] = time.time() - db_start
         
+        # Notify SSE clients of new prediction
+        with sse_lock:
+            for client in sse_clients[:]:  # Copy to avoid modification during iteration
+                try:
+                    client.put("data: new_prediction\n\n")
+                except:
+                    sse_clients.remove(client)  # Remove disconnected client
+        
         request_data['total_time'] = time.time() - start_time
         logger.info(f"Prediction completed (ID: {conversation.id})")
         
@@ -359,7 +372,7 @@ def get_stats():
                         if (Conversation.query.filter_by(feedback='correct').count() +
                             Conversation.query.filter_by(feedback='incorrect').count()) > 0 
                         else 0)
-        }  # Fixed missing parenthesis here
+        }
         
         response = jsonify(stats)
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
@@ -368,3 +381,31 @@ def get_stats():
         response = jsonify({'error': str(e)})
         response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5173')
         return response, 500
+
+@bp.route('/recent-activity-stream', methods=['GET'])
+def recent_activity_stream():
+    def stream():
+        with sse_lock:
+            queue = []
+            sse_clients.append(queue)
+        
+        try:
+            while True:
+                try:
+                    message = queue.pop(0) if queue else (yield ":\n\n")  # Keep-alive comment
+                    if message:
+                        yield message
+                except GeneratorExit:
+                    with sse_lock:
+                        sse_clients.remove(queue)
+                    break
+        except Exception as e:
+            logger.error(f"SSE error: {str(e)}")
+            with sse_lock:
+                sse_clients.remove(queue)
+    
+    response = Response(stream(), mimetype='text/event-stream')
+    response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no'
+    return response

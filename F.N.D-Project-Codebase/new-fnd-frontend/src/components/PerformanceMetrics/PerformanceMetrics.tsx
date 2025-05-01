@@ -72,7 +72,7 @@ const defaultStats: SystemStats = {
   },
   recent_activity: Array.from({ length: 24 }, (_, i) => ({
     hour: i,
-    predictions: Math.floor(Math.random() * 20 + 5),
+    predictions: 0, // Set to 0 to avoid random data
   })),
   input_methods: {
     text: 752,
@@ -103,14 +103,35 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
       }
     };
 
+    // Initial fetch
     if (stats) {
       setDisplayStats(stats);
       setLastUpdate(new Date());
     } else {
       fetchStats();
-      const interval = setInterval(fetchStats, 60000);
-      return () => clearInterval(interval);
     }
+
+    // Set up SSE for recent activity updates
+    const eventSource = new EventSource(
+      "http://localhost:5000/recent-activity-stream"
+    );
+    eventSource.onmessage = (event) => {
+      if (event.data === "new_prediction") {
+        fetchStats(); // Update stats when a new prediction is received
+      }
+    };
+    eventSource.onerror = () => {
+      console.log("SSE error, falling back to demo data");
+      setUsingDemoData(true);
+    };
+
+    // Poll for other stats every 60 seconds
+    const interval = setInterval(fetchStats, 60000);
+
+    return () => {
+      eventSource.close();
+      clearInterval(interval);
+    };
   }, [stats]);
 
   return (
@@ -373,7 +394,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
           <div className={styles.chartExplanation}>
             <p>
               This timeline shows the number of content verifications performed
-              each hour.
+              each hour over the last 24 hours.
               <br />
               <span className={styles.axisLabel}>X-Axis:</span> Hour of day
               (24-hour format)
@@ -383,10 +404,10 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
             </p>
           </div>
 
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={250}>
             <LineChart
               data={displayStats.recent_activity}
-              margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
+              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
               <XAxis
@@ -418,7 +439,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
                 }}
               />
               <Legend
-                wrapperStyle={{ paddingTop: 20 }}
+                wrapperStyle={{ paddingTop: 10 }}
                 formatter={() => (
                   <span className={styles.legendText}>Predictions</span>
                 )}
