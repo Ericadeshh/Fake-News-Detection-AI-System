@@ -161,59 +161,63 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
       </div>
 
       <div className={styles.metricsGrid}>
-        {[
-          {
-            icon: <FaChartBar />,
-            value: displayStats.total_predictions,
-            label: "Total Analyses",
-            trend: "+14.7% weekly",
-            className: styles.primaryCard,
-          },
-          {
-            icon: <FaUserCheck />,
-            value: displayStats.true_predictions,
-            label: "Verified Content",
-            trend: `${(
-              (displayStats.true_predictions / displayStats.total_predictions) *
-              100
-            ).toFixed(1)}% accuracy`,
-            className: styles.successCard,
-          },
-          {
-            icon: <FaUserTimes />,
-            value: displayStats.fake_predictions,
-            label: "Detected Fabrications",
-            trend: `${(
-              (displayStats.fake_predictions / displayStats.total_predictions) *
-              100
-            ).toFixed(1)}% flagged`,
-            className: styles.dangerCard,
-          },
-          {
-            icon: <FaChartPie />,
-            value: `${displayStats.average_confidence.toFixed(1)}%`,
-            label: "Model Confidence",
-            trend: "±1.8% margin of error",
-            className: styles.infoCard,
-          },
-        ].map((metric, index) => (
-          <motion.div
-            key={index}
-            className={`${styles.metricCard} ${metric.className}`}
-            whileHover={{ y: -3 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className={styles.metricIcon}>{metric.icon}</div>
-            <div className={styles.metricValue}>{metric.value}</div>
-            <div className={styles.metricLabel}>{metric.label}</div>
-            <div className={styles.metricTrend}>{metric.trend}</div>
-          </motion.div>
-        ))}
+        <div className={styles.topMetrics}>
+          {[
+            {
+              icon: <FaChartBar />,
+              value: displayStats.total_predictions,
+              label: "Total Analyses",
+              trend: "+14.7% weekly",
+              className: styles.primaryCard,
+            },
+            {
+              icon: <FaUserCheck />,
+              value: displayStats.true_predictions,
+              label: "Verified Content",
+              trend: `${(
+                (displayStats.true_predictions /
+                  displayStats.total_predictions) *
+                100
+              ).toFixed(1)}% accuracy`,
+              className: styles.successCard,
+            },
+            {
+              icon: <FaUserTimes />,
+              value: displayStats.fake_predictions,
+              label: "Detected Fabrications",
+              trend: `${(
+                (displayStats.fake_predictions /
+                  displayStats.total_predictions) *
+                100
+              ).toFixed(1)}% flagged`,
+              className: styles.dangerCard,
+            },
+            {
+              icon: <FaChartPie />,
+              value: `${displayStats.average_confidence.toFixed(1)}%`,
+              label: "Model Confidence",
+              trend: "±1.8% margin of error",
+              className: styles.infoCard,
+            },
+          ].map((metric, index) => (
+            <motion.div
+              key={index}
+              className={`${styles.metricCard} ${metric.className}`}
+              whileHover={{ y: -3 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <div className={styles.metricIcon}>{metric.icon}</div>
+              <div className={styles.metricValue}>{metric.value}</div>
+              <div className={styles.metricLabel}>{metric.label}</div>
+              <div className={styles.metricTrend}>{metric.trend}</div>
+            </motion.div>
+          ))}
+        </div>
 
         <div className={styles.groupedCharts}>
           <motion.div
             className={`${styles.metricChart} ${styles.fullWidth}`}
-            whileHover={{ scale: 1.005 }}
+            whileHover={{ scale: 1.002 }}
           >
             <h4 className={styles.DistributionHeader}>
               <LuFolderInput className={styles.greenIcon} /> Input Method
@@ -277,10 +281,10 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
             </div>
           </motion.div>
 
-          <div className={styles.validations}>
+          <div className={styles.metricChart}>
             <motion.div
-              className={styles.metricChart}
-              whileHover={{ scale: 1.005 }}
+              className={styles.validationChart}
+              whileHover={{ scale: 1.002 }}
             >
               <h4>
                 <RiTimerFlashLine className={styles.greenIcon} /> System
@@ -316,8 +320,8 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
             </motion.div>
 
             <motion.div
-              className={styles.metricChart}
-              whileHover={{ scale: 1.005 }}
+              className={styles.validationChart}
+              whileHover={{ scale: 1.002 }}
             >
               <h4>
                 <MdOutlineFeedback className={styles.greenIcon} /> Community
@@ -381,7 +385,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
 
         <motion.div
           className={`${styles.metricChart} ${styles.fullWidth}`}
-          whileHover={{ scale: 1.005 }}
+          whileHover={{ scale: 1.002 }}
         >
           <h4>
             <FaRegClock className={styles.greenIcon} /> Recent Activity

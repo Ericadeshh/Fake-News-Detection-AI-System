@@ -1,0 +1,17 @@
+.scrollDown {
+  margin-top: 2rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon {
+  font-size: 1.5rem;
+  color: #1abc9c;
+  transition: color 0.2s ease;
+}
+
+.scrollDown:hover .icon {
+  color: #16a085;
+}

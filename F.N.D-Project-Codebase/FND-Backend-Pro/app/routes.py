@@ -387,7 +387,7 @@ def recent_activity_stream():
     def stream():
         with sse_lock:
             queue = []
-            sse_clients.append(queue)
+            sse_clients.append(queue)  
         
         try:
             while True:

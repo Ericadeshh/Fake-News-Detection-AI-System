@@ -120,30 +120,8 @@
   transition: all 0.2s ease;
 }
 
-.secondaryButton {
-  margin: 0.5rem;
-  padding: 0.8rem 1.8rem;
-  background: rgba(255, 255, 255, 0.95);
-  color: #5e503f;
-  border: 2px solid #5e503f;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(5px);
-}
-
 .primaryButton:hover {
   background: #16a085;
-}
-
-.secondaryButton:hover {
-  background: #5e503f;
-  color: white;
 }
 
 .greenIcon {
@@ -173,13 +151,13 @@
     gap: 1rem;
   }
 
-  .primaryButton,
-  .secondaryButton {
+  .primaryButton {
     width: 100%;
     justify-content: center;
     font-size: 0.85rem;
   }
 }
+
 /* Shield styles */
 .shieldContainer {
   margin-bottom: 2rem;

@@ -6,11 +6,11 @@ import {
   FaGlobe,
   FaTextHeight,
   FaBalanceScale,
-  FaArrowDown,
-  FaUser,
   FaShieldAlt,
+  FaSearchPlus,
 } from "react-icons/fa";
 import styles from "./Introduction.module.css";
+import ScrollDown from "../scrollDown/scrollDown";
 
 const Introduction = () => {
   const [shieldVisible, setShieldVisible] = useState(false);
@@ -215,17 +215,10 @@ const Introduction = () => {
                   whileTap={{ scale: 0.98 }}
                   onClick={() => scrollToSection("content-auth")}
                 >
-                  <FaArrowDown /> Verify News
-                </motion.button>
-
-                <motion.button
-                  className={styles.secondaryButton}
-                  whileHover={{ y: -2, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <FaUser /> Login/Sign Up
+                  <FaSearchPlus /> Verify News
                 </motion.button>
               </motion.div>
+              <ScrollDown />
             </>
           )}
         </AnimatePresence>
