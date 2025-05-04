@@ -6,7 +6,7 @@
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
-  max-width: 800px;
+  max-width: 1366px;
   width: 100%;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -54,16 +54,17 @@
 .newAnalysisButton {
   background: none;
   border: 1px solid #ddd;
-  padding: 0.8rem 1.2rem;
+  padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.2rem);
   border-radius: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: clamp(0.85rem, 2vw, 0.9rem);
   font-weight: 500;
   color: #2c3e50;
   transition: all 0.3s ease;
+  max-width: 300px;
 }
 
 .newAnalysisButton:hover {
@@ -167,7 +168,7 @@
 
 .correctButton,
 .incorrectButton {
-  padding: 0.9rem 2rem;
+  padding: clamp(0.7rem, 2vw, 0.9rem) clamp(1.5rem, 4vw, 2rem);
   border: none;
   border-radius: 30px;
   cursor: pointer;
@@ -177,6 +178,8 @@
   font-size: clamp(0.85rem, 2vw, 0.9rem);
   font-weight: 500;
   transition: all 0.3s ease;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .correctButton {
@@ -216,12 +219,14 @@
   background: none;
   border: 2px solid #f39c12;
   color: #f39c12;
-  padding: 0.8rem 1.5rem;
+  padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1.2rem, 3vw, 1.5rem);
   border-radius: 30px;
   cursor: pointer;
   font-size: clamp(0.85rem, 2vw, 0.9rem);
   font-weight: 500;
   transition: all 0.3s ease;
+  max-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .changeFeedbackButton:hover {
@@ -260,7 +265,7 @@
 @media (max-width: 768px) {
   .resultCard {
     padding: 1.5rem;
-    margin: 1.5rem 1rem;
+    margin: 0rem auto;
   }
 
   .resultHeader {
@@ -270,6 +275,7 @@
   }
 
   .newAnalysisButton {
+    max-width: clamp(200px, 80vw, 250px);
     width: 100%;
     justify-content: center;
   }
@@ -283,15 +289,21 @@
   }
 
   .feedbackButtons {
-    flex-direction: column;
+    flex-direction: row;
     gap: 0.75rem;
+    justify-content: center;
   }
 
   .correctButton,
   .incorrectButton {
+    max-width: clamp(150px, 45vw, 200px);
     width: 100%;
     justify-content: center;
-    padding: 0.8rem;
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .changeFeedbackButton {
+    max-width: clamp(200px, 80vw, 250px);
   }
 
   .feedbackSuccess,
@@ -320,5 +332,15 @@
 
   .detailItem {
     font-size: 0.85rem;
+  }
+
+  .feedbackButtons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .correctButton,
+  .incorrectButton {
+    max-width: clamp(150px, 80vw, 200px);
   }
 }

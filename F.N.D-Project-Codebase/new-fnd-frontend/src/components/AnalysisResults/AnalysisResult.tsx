@@ -44,7 +44,7 @@ const AnalysisResult = ({
       // Animate confidence from 0 to the actual value
       const targetConfidence = result.confidence * 100;
       let start = 0;
-      const duration = 2000; // 2 seconds
+      const duration = 1200; // 1.2 seconds for faster animation
       const increment = targetConfidence / (duration / 16); // Approx 60fps
 
       const animate = () => {
@@ -71,7 +71,7 @@ const AnalysisResult = ({
         }`}
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        transition={{ type: "spring", stiffness: 500, damping: 15 }}
       >
         <div className={styles.resultHeader}>
           <h2>
@@ -82,7 +82,7 @@ const AnalysisResult = ({
             className={styles.newAnalysisButton}
             whileHover={{ x: -5, scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400 }}
+            transition={{ type: "spring", stiffness: 500, duration: 0.2 }}
           >
             <FaArrowLeft /> New Analysis
           </motion.button>
@@ -96,7 +96,7 @@ const AnalysisResult = ({
               <motion.span
                 className={styles.confidenceIcon}
                 animate={{ rotate: [0, 360] }}
-                transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
               >
                 <FaInfoCircle />
               </motion.span>
@@ -107,7 +107,7 @@ const AnalysisResult = ({
               className={styles.meterFill}
               initial={{ width: "0%" }}
               animate={{ width: `${animatedConfidence}%` }}
-              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              transition={{ type: "spring", stiffness: 150, damping: 15 }}
             />
           </div>
         </div>
@@ -116,7 +116,7 @@ const AnalysisResult = ({
           className={styles.analysisDetails}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 200, delay: 0.3 }}
+          transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
         >
           <h3>Analysis Details</h3>
           <div className={styles.detailItem}>
@@ -133,7 +133,7 @@ const AnalysisResult = ({
               className={styles.feedbackSuccess}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
               <FaCheck /> Thank you for your feedback!
               <motion.button
@@ -141,7 +141,7 @@ const AnalysisResult = ({
                 className={styles.changeFeedbackButton}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400 }}
+                transition={{ type: "spring", stiffness: 500, duration: 0.2 }}
               >
                 <FaRedo /> Modify Assessment
               </motion.button>
@@ -151,7 +151,7 @@ const AnalysisResult = ({
               className={styles.feedbackChanged}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
               <FaInfoCircle /> Analysis updated successfully!
             </motion.div>
@@ -160,7 +160,7 @@ const AnalysisResult = ({
               className={styles.feedbackSection}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 200 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
               <p>How accurate was this analysis?</p>
               <div className={styles.feedbackButtons}>
@@ -168,11 +168,11 @@ const AnalysisResult = ({
                   onClick={() => submitFeedback("correct")}
                   className={styles.correctButton}
                   whileHover={{
-                    scale: 1.1,
-                    boxShadow: "0 4px 12px rgba(46, 204, 113, 0.3)",
+                    scale: 1.05,
+                    boxShadow: "0 4px 12px rgba(6, 6, 6, 0.3)",
                   }}
                   whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400 }}
+                  transition={{ type: "spring", stiffness: 500, duration: 0.2 }}
                 >
                   <FaCheck /> Accurate
                 </motion.button>
@@ -180,11 +180,11 @@ const AnalysisResult = ({
                   onClick={() => submitFeedback("incorrect")}
                   className={styles.incorrectButton}
                   whileHover={{
-                    scale: 1.1,
+                    scale: 1.05,
                     boxShadow: "0 4px 12px rgba(231, 76, 60, 0.3)",
                   }}
                   whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 400 }}
+                  transition={{ type: "spring", stiffness: 500, duration: 0.2 }}
                 >
                   <FaTimes /> Inaccurate
                 </motion.button>
@@ -201,7 +201,7 @@ const AnalysisResult = ({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            transition={{ type: "spring", stiffness: 500 }}
           >
             <div>
               <FaExclamationTriangle /> <strong>{error.error}</strong>
@@ -211,7 +211,7 @@ const AnalysisResult = ({
               onClick={() => setError(null)}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              transition={{ type: "spring", stiffness: 500, duration: 0.2 }}
               aria-label="Close"
             >
               ×
