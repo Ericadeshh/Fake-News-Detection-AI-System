@@ -64,7 +64,7 @@ const Introduction = () => {
 
     // Start title animation after shield settles
     const titleTimeout = setTimeout(() => {
-      const title = "AI News Verification";
+      const title = "F.N.D. ndio Source!";
       let currentIndex = 0;
 
       const typeInterval = setInterval(() => {
