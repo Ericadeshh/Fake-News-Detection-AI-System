@@ -10,22 +10,22 @@ import {
   FaInfoCircle,
   FaGlobe,
   FaCheck,
-  FaTachometerAlt,
-  FaCheckCircle,
+  FaCommentDots,
+  FaLink,
 } from "react-icons/fa";
 import { MdOutlineFeedback } from "react-icons/md";
 import { LuFolderInput } from "react-icons/lu";
 import styles from "./PerformanceMetrics.module.css";
 import {
   ResponsiveContainer,
-  BarChart,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   Legend,
-  LineChart,
-  Line,
+  BarChart,
   Bar,
 } from "recharts";
 import { useEffect, useState } from "react";
@@ -42,22 +42,24 @@ type SystemStats = {
   true_predictions: number;
   fake_predictions: number;
   average_confidence: number;
-  average_processing_time: number;
+  feedback_rate: number;
+  unique_sources: number;
   feedback_stats: {
     correct: number;
     incorrect: number;
     changed: number;
   };
-  recent_activity: {
-    hour: number;
-    predictions: number;
-  }[];
   input_methods: {
     text: number;
     file: number;
     url: number;
   };
-  accuracy: number;
+  recent_predictions: {
+    hour: number;
+    predictions: number;
+    true_count: number;
+    fake_count: number;
+  }[];
 };
 
 interface PerformanceMetricsProps {
@@ -69,22 +71,24 @@ const defaultStats: SystemStats = {
   true_predictions: 842,
   fake_predictions: 412,
   average_confidence: 92.4,
-  average_processing_time: 0.12,
+  feedback_rate: 15.2,
+  unique_sources: 320,
   feedback_stats: {
     correct: 89,
     incorrect: 12,
     changed: 7,
   },
-  recent_activity: Array.from({ length: 24 }, (_, i) => ({
-    hour: i,
-    predictions: 0,
-  })),
   input_methods: {
     text: 752,
     file: 314,
     url: 188,
   },
-  accuracy: 88,
+  recent_predictions: Array.from({ length: 24 }, (_, i) => ({
+    hour: i,
+    predictions: Math.floor(Math.random() * 50),
+    true_count: Math.floor(Math.random() * 30),
+    fake_count: Math.floor(Math.random() * 20),
+  })),
 };
 
 // Animation variants for Input Method Distribution bars
@@ -97,6 +101,36 @@ const barVariants = {
       height: { duration: 0.8, ease: "easeOut", delay: index * 0.2 },
       opacity: { duration: 0.4, delay: index * 0.2 },
     },
+  }),
+};
+
+// Animation for System Performance cards
+const cardVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, delay: index * 0.2, ease: "easeOut" },
+  }),
+};
+
+// Animation for Line Chart curve
+const lineVariants = {
+  initial: { pathLength: 0, opacity: 0 },
+  animate: {
+    pathLength: 1,
+    opacity: 1,
+    transition: { duration: 0.6, ease: "easeInOut" },
+  },
+};
+
+// Animation for prediction dots
+const dotVariants = {
+  initial: { scale: 0, opacity: 0 },
+  animate: (index: number) => ({
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.4, delay: index * 0.1, ease: "easeOut" },
   }),
 };
 
@@ -163,6 +197,36 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
       clearInterval(interval);
     };
   }, [stats]);
+
+  const AnimatedDot = ({
+    cx,
+    cy,
+    payload,
+    index,
+  }: {
+    cx: number;
+    cy: number;
+    payload: { true_count: number; fake_count: number };
+    index: number;
+  }) => {
+    const isTrue = payload.true_count > 0;
+    const isFake = payload.fake_count > 0;
+    const fillColor = isTrue ? "#1abc9c" : isFake ? "#e74c3c" : "#777";
+
+    return (
+      <motion.circle
+        cx={cx}
+        cy={cy}
+        r={isTrue || isFake ? 8 : 4}
+        fill={fillColor}
+        className={styles.predictionDot}
+        variants={dotVariants}
+        initial="initial"
+        animate="animate"
+        custom={index}
+      />
+    );
+  };
 
   return (
     <motion.div
@@ -369,46 +433,48 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
                 Performance
                 <p className={styles.chartDescription}>
                   <FaRegClock className={styles.brownIcon} /> Key metrics on
-                  speed and reliability
+                  database operations
                 </p>
               </h4>
               <p className={styles.chartExplanation}>
-                See how fast and accurate our AI is at analyzing content, plus
-                how the system is performing overall. These metrics show the
-                average time to process inputs, the accuracy of predictions
-                based on user feedback, and the system's resource usage.
+                These metrics show the volume and diversity of content analyzed,
+                plus how actively users provide feedback, all drawn from
+                database records.
               </p>
               <div className={styles.performanceGrid}>
                 {[
                   {
-                    icon: <RiTimerFlashLine />,
-                    value: `${displayStats.average_processing_time.toFixed(
-                      2
-                    )}s`,
-                    label: "Processing Time",
-                    description: "How fast the AI processes your input",
+                    icon: <FaChartBar />,
+                    value: displayStats.total_predictions,
+                    label: "Prediction Volume",
+                    description:
+                      "Total content analyses performed by the AI, stored in the database.",
                     className: styles.performanceCard,
                   },
                   {
-                    icon: <FaCheckCircle />,
-                    value: `${displayStats.accuracy}%`,
-                    label: "Feedback Accuracy",
+                    icon: <FaCommentDots />,
+                    value: `${displayStats.feedback_rate.toFixed(1)}%`,
+                    label: "Feedback Rate",
                     description:
-                      "Percentage of predictions marked correct in user feedback, sourced from database records.",
+                      "Percentage of analyses with user feedback, reflecting engagement.",
                     className: styles.performanceCard,
                   },
                   {
-                    icon: <FaTachometerAlt />,
-                    value: "Stable",
-                    label: "System Load",
+                    icon: <FaLink />,
+                    value: displayStats.unique_sources,
+                    label: "Unique Sources",
                     description:
-                      "Database query response time, indicating system efficiency.",
+                      "Number of unique content sources analyzed, from database records.",
                     className: styles.performanceCard,
                   },
                 ].map((metric, index) => (
                   <motion.div
                     key={index}
                     className={`${styles.performanceCard} ${metric.className}`}
+                    variants={cardVariants}
+                    initial="initial"
+                    animate="animate"
+                    custom={index}
                     whileHover={{ y: -3 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
@@ -422,8 +488,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
                 ))}
               </div>
               <div className={styles.note}>
-                <FaInfoCircle /> Based on user interactions and system
-                monitoring
+                <FaInfoCircle /> Based on database queries and user interactions
               </div>
             </motion.div>
 
@@ -492,7 +557,7 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
         </div>
 
         <motion.div
-          className={`${styles.metricChart} ${styles.fullWidth}`}
+          className={`${styles.metricChart} ${styles.fullWidth} ${styles.recentActivityChart}`}
           whileHover={{ scale: 1.002 }}
         >
           <h4>
@@ -502,11 +567,11 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
               last 24 hours
             </p>
           </h4>
-
           <div className={styles.chartExplanation}>
             <p>
-              This timeline shows the number of content verifications performed
-              each hour over the last 24 hours.
+              This graph shows predictions made in the last 24 hours, with teal
+              dots for True and coral dots for Fake classifications, updated
+              instantly when content is verified.
               <br />
               <span className={styles.axisLabel}>X-Axis:</span> Hour of day
               (24-hour format)
@@ -515,10 +580,9 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
               predictions
             </p>
           </div>
-
           <ResponsiveContainer width="100%" height={250}>
             <LineChart
-              data={displayStats.recent_activity}
+              data={displayStats.recent_predictions}
               margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
@@ -561,17 +625,20 @@ const PerformanceMetrics = ({ stats }: PerformanceMetricsProps) => {
                 dataKey="predictions"
                 stroke="#1abc9c"
                 strokeWidth={2}
-                dot={{ fill: "#1abc9c", strokeWidth: 2 }}
+                dot={(props) => <AnimatedDot {...props} />}
                 activeDot={{
-                  r: 8,
+                  r: 10,
                   fill: "#fff",
                   stroke: "#1abc9c",
                   strokeWidth: 2,
-                  style: {
-                    filter: "drop-shadow(0 2px 4px rgba(26, 188, 156, 0.3))",
-                  },
                 }}
-              />
+              >
+                <motion.path
+                  variants={lineVariants}
+                  initial="initial"
+                  animate="animate"
+                />
+              </Line>
             </LineChart>
           </ResponsiveContainer>
         </motion.div>

@@ -11,7 +11,7 @@ from app import db
 from app.ai_service import ai_service
 import logging
 from datetime import datetime, timedelta
-from sqlalchemy import text, extract, func
+from sqlalchemy import extract, func
 import time
 from threading import Lock
 
@@ -327,54 +327,69 @@ def get_stats():
         return _build_cors_preflight_response()
     
     try:
-        # Calculate recent activity (last 24 hours)
+        # Calculate recent predictions (last 24 hours)
         now = datetime.utcnow()
         twenty_four_hours_ago = now - timedelta(hours=24)
         
-        recent_activity = db.session.query(
+        recent_predictions_raw = db.session.query(
             extract('hour', Conversation.created_at).label('hour'),
+            Conversation.prediction.label('prediction_type'),
             func.count(Conversation.id).label('predictions')
         ).filter(
             Conversation.created_at >= twenty_four_hours_ago
-        ).group_by('hour').all()
+        ).group_by(
+            extract('hour', Conversation.created_at),
+            Conversation.prediction
+        ).all()
 
-        # Convert to {hour: count} format and fill missing hours
-        activity_dict = {int(hour): count for hour, count in recent_activity}
-        recent_activity_data = []
-        for hour in range(24):
-            recent_activity_data.append({
+        # Initialize all 24 hours
+        recent_predictions = [
+            {
                 'hour': hour,
-                'predictions': activity_dict.get(hour, 0)
-            })
+                'predictions': 0,
+                'true_count': 0,
+                'fake_count': 0
+            }
+            for hour in range(24)
+        ]
+
+        # Populate predictions
+        for hour, prediction_type, count in recent_predictions_raw:
+            hour = int(hour)
+            if 0 <= hour < 24:
+                recent_predictions[hour]['predictions'] += count
+                if prediction_type == 'true':
+                    recent_predictions[hour]['true_count'] = count
+                elif prediction_type == 'fake':
+                    recent_predictions[hour]['fake_count'] = count
+
+        total_predictions = Conversation.query.count()
 
         stats = {
-            'total_predictions': Conversation.query.count(),
+            'total_predictions': total_predictions,
             'true_predictions': Conversation.query.filter_by(prediction='true').count(),
             'fake_predictions': Conversation.query.filter_by(prediction='fake').count(),
             'average_confidence': db.session.query(
                 func.avg(Conversation.confidence)
             ).scalar() or 0,
-            'average_processing_time': db.session.query(
-                func.avg(Conversation.processing_time)
-            ).scalar() or 0,
+            'feedback_rate': round((
+                Conversation.query.filter(Conversation.feedback.isnot(None)).count() / 
+                total_predictions * 100
+            ) if total_predictions > 0 else 0),
+            'unique_sources': Conversation.query.distinct(Conversation.input_text).filter(
+                Conversation.input_type.in_(['url', 'file'])).count(),
             'feedback_stats': {
                 'correct': Conversation.query.filter_by(feedback='correct').count(),
                 'incorrect': Conversation.query.filter_by(feedback='incorrect').count(),
                 'changed': Conversation.query.filter(
                     Conversation.edited_prediction.isnot(None)).count(),
             },
-            'recent_activity': recent_activity_data,
             'input_methods': {
                 'text': Conversation.query.filter_by(input_type='text').count(),
                 'file': Conversation.query.filter_by(input_type='file').count(),
                 'url': Conversation.query.filter_by(input_type='url').count(),
             },
-            'accuracy': round((Conversation.query.filter_by(feedback='correct').count() / 
-                            (Conversation.query.filter_by(feedback='correct').count() +
-                             Conversation.query.filter_by(feedback='incorrect').count()) * 100) 
-                        if (Conversation.query.filter_by(feedback='correct').count() +
-                            Conversation.query.filter_by(feedback='incorrect').count()) > 0 
-                        else 0)
+            'recent_predictions': recent_predictions
         }
         
         response = jsonify(stats)

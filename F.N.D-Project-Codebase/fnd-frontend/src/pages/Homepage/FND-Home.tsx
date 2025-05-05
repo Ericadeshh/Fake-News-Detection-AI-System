@@ -35,7 +35,17 @@ type SystemStats = {
     file: number;
     url: number;
   };
+  feedback_rate: number;
+  unique_sources: number;
+  recent_predictions: {
+    hour: number;
+    predictions: number;
+    true_count: number;
+    fake_count: number;
+  }[];
 };
+
+// Removed unused ContentAuthenticationProps type definition
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -58,7 +68,7 @@ const FNDHome = () => {
     "idle" | "success" | "error" | "changed"
   >("idle");
   const [stats, setStats] = useState<SystemStats | null>(null);
-  const fileInputRef: React.RefObject<HTMLInputElement | null> = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const fetchStats = async () => {
     try {

@@ -260,7 +260,7 @@
 
 @media (max-width: 576px) {
   .aboutSection {
-    padding: 2rem 1rem;
+    padding: 0rem;
   }
 
   .sectionText {
