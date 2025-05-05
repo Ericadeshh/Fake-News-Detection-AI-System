@@ -354,6 +354,9 @@ def get_stats():
             'average_confidence': db.session.query(
                 func.avg(Conversation.confidence)
             ).scalar() or 0,
+            'average_processing_time': db.session.query(
+                func.avg(Conversation.processing_time)
+            ).scalar() or 0,
             'feedback_stats': {
                 'correct': Conversation.query.filter_by(feedback='correct').count(),
                 'incorrect': Conversation.query.filter_by(feedback='incorrect').count(),

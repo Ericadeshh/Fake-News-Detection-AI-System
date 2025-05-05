@@ -29,7 +29,8 @@ from pathlib import Path
 
 def verify_environment():
     """Ensure running in project's virtual environment"""
-    venv_path = os.path.abspath("venv")
+    venv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "venv"))
+    #venv_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "venv"))
     if not sys.executable.startswith(venv_path):
         print(f"ERROR: Must use {venv_path}\\Scripts\\python.exe")
         sys.exit(1)
