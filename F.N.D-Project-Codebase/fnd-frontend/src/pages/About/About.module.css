@@ -245,6 +245,9 @@
 }
 
 @media (max-width: 768px) {
+  .aboutSection {
+    padding-top: 5rem;
+  }
   .heading {
     font-size: 1.8rem;
   }
@@ -260,7 +263,7 @@
 
 @media (max-width: 576px) {
   .aboutSection {
-    padding: 0rem;
+    padding-top: 2rem;
   }
 
   .sectionText {
