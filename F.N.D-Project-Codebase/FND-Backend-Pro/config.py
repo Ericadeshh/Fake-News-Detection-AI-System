@@ -1,4 +1,3 @@
-# Updated config.py
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -21,6 +20,11 @@ class Config:
         'pool_size': 10,
         'max_overflow': 20
     }
+    
+    # JWT configuration
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', SECRET_KEY)
+    JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour
+    JWT_TOKEN_LOCATION = ['headers']
     
     # Model configuration
     MODEL_PATH = os.getenv('MODEL_PATH', './saved_model')

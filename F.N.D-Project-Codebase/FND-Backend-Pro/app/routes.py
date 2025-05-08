@@ -15,6 +15,11 @@ from sqlalchemy import extract, func
 import time
 from threading import Lock
 
+
+from flask_login import login_user, logout_user, current_user, login_required
+from app.models import User
+
+
 bp = Blueprint('routes', __name__)
 logger = logging.getLogger(__name__)
 
@@ -427,3 +432,62 @@ def recent_activity_stream():
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'
     return response
+
+@bp.route('/login', methods=['POST', 'OPTIONS'])
+def login():
+    if request.method == 'OPTIONS':
+        return _build_cors_preflight_response()
+    
+    data = request.get_json()
+    user = User.query.filter_by(email=data['email']).first()
+    
+    if user and user.check_password(data['password']):
+        login_user(user)
+        user.last_login = datetime.utcnow()
+        db.session.commit()
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'is_admin': user.is_admin
+            }
+        }), 200
+    
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+@bp.route('/signup', methods=['POST', 'OPTIONS'])
+def signup():
+    if request.method == 'OPTIONS':
+        return _build_cors_preflight_response()
+    
+    data = request.get_json()
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'Email already exists'}), 400
+    
+    user = User(
+        full_name=data['full_name'],
+        email=data['email'],
+        phone=data.get('phone'),
+        is_admin=data.get('is_admin', False)
+    )
+    user.set_password(data['password'])
+    db.session.add(user)
+    db.session.commit()
+    
+    return jsonify({'message': 'User created successfully'}), 201
+
+@bp.route('/admin/users', methods=['GET', 'OPTIONS'])
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    users = User.query.all()
+    return jsonify([{
+        'id': u.id,
+        'full_name': u.full_name,
+        'email': u.email,
+        'is_admin': u.is_admin,
+        'created_at': u.created_at.isoformat()
+    } for u in users])
