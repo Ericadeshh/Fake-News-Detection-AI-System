@@ -4,10 +4,8 @@ import styles from "./Signup.module.css";
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
+    username: "",
     password: "",
-    phone: "",
   });
   const navigate = useNavigate();
 
@@ -27,6 +25,7 @@ const SignupForm = () => {
       }
     } catch (error) {
       console.error("Signup error:", error);
+      alert("Signup failed");
     }
   };
 
@@ -35,23 +34,12 @@ const SignupForm = () => {
       <h2 className={styles.authHeading}>Create Account</h2>
       <form onSubmit={handleSubmit} className={styles.authForm}>
         <div className={styles.formGroup}>
-          <label>Full Name</label>
+          <label>Username</label>
           <input
             type="text"
-            value={formData.full_name}
+            value={formData.username}
             onChange={(e) =>
-              setFormData({ ...formData, full_name: e.target.value })
-            }
-            required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Email</label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
+              setFormData({ ...formData, username: e.target.value })
             }
             required
           />
@@ -65,16 +53,6 @@ const SignupForm = () => {
               setFormData({ ...formData, password: e.target.value })
             }
             required
-          />
-        </div>
-        <div className={styles.formGroup}>
-          <label>Phone (Optional)</label>
-          <input
-            type="tel"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
           />
         </div>
         <button type="submit" className={styles.authButton}>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios";
 import styles from "./AdminDashboard.module.css";
 
 interface Stat {
@@ -17,8 +16,15 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await axios.get<Stat>("http://localhost:5000/stats");
-        setStats(response.data);
+        const token = localStorage.getItem("token");
+        const response = await fetch("http://localhost:5000/stats", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch stats");
+        const data: Stat = await response.json();
+        setStats(data);
       } catch {
         setError("Failed to fetch stats");
       }

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -13,18 +13,19 @@ const LoginForm = () => {
       const response = await fetch("http://localhost:5000/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        navigate(data.user.is_admin ? "/admin" : "/dashboard");
+        navigate(data.user.is_admin ? "/admin-dashboard" : "/user-dashboard");
       } else {
         alert("Login failed");
       }
     } catch (error) {
       console.error("Login error:", error);
+      alert("Login failed");
     }
   };
 
@@ -33,11 +34,11 @@ const LoginForm = () => {
       <h2 className={styles.authHeading}>FND System Login</h2>
       <form onSubmit={handleSubmit} className={styles.authForm}>
         <div className={styles.formGroup}>
-          <label>Email</label>
+          <label>Username</label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>

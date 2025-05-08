@@ -5,7 +5,6 @@ import styles from "./header.module.css";
 import { IoMenu } from "react-icons/io5";
 import { RiRobot3Fill } from "react-icons/ri";
 import { IoCloseSharp, IoChevronForward } from "react-icons/io5";
-import { useAuth } from "../../pages/UserAuthentication/context/AuthContext";
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,7 +12,6 @@ const Header: React.FC = () => {
   const projectsRef = useRef<HTMLLIElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const { user, isAuthenticated, logout } = useAuth();
 
   // Animation variants
   const containerVariants = {
@@ -202,78 +200,6 @@ const Header: React.FC = () => {
           </Link>
         </motion.li>
       ))}
-
-      {isAuthenticated ? (
-        <>
-          <motion.li key="dashboard" variants={itemVariants}>
-            <Link
-              to={user?.is_admin ? "/admin-dashboard" : "/user-dashboard"}
-              className={`${styles.link} ${isActive(
-                user?.is_admin ? "/admin-dashboard" : "/user-dashboard"
-              )}`}
-              onClick={closeMobileMenu}
-            >
-              <motion.span
-                whileHover={{ x: 3 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                Dashboard
-              </motion.span>
-              {!isDesktop && <IoChevronForward className={styles.linkIcon} />}
-            </Link>
-          </motion.li>
-          <motion.li key="logout" variants={itemVariants}>
-            <button
-              onClick={() => {
-                logout();
-                closeMobileMenu();
-              }}
-              className={`${styles.link} ${styles.logoutButton}`}
-            >
-              <motion.span
-                whileHover={{ x: 3 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                Logout
-              </motion.span>
-              {!isDesktop && <IoChevronForward className={styles.linkIcon} />}
-            </button>
-          </motion.li>
-        </>
-      ) : (
-        <>
-          <motion.li key="login" variants={itemVariants}>
-            <Link
-              to="/login"
-              className={`${styles.link} ${isActive("/login")}`}
-              onClick={closeMobileMenu}
-            >
-              <motion.span
-                whileHover={{ x: 3 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                Login
-              </motion.span>
-              {!isDesktop && <IoChevronForward className={styles.linkIcon} />}
-            </Link>
-          </motion.li>
-          <motion.li key="signup" variants={itemVariants}>
-            <Link
-              to="/signup"
-              className={`${styles.link} ${isActive("/signup")}`}
-              onClick={closeMobileMenu}
-            >
-              <motion.span
-                whileHover={{ x: 3 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                Sign Up
-              </motion.span>
-              {!isDesktop && <IoChevronForward className={styles.linkIcon} />}
-            </Link>
-          </motion.li>
-        </>
-      )}
     </motion.ul>
   );
 

@@ -5,8 +5,9 @@ import sys
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import text, create_engine
-from flask_migrate import Migrate # type: ignore
-from flask_cors import CORS # type: ignore
+from flask_migrate import Migrate
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from config import Config
 import logging
 from datetime import datetime
@@ -16,6 +17,7 @@ import time
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
 
 def verify_environment():
     """Enhanced environment verification with timing"""
@@ -89,10 +91,15 @@ def create_app(config_class=Config):
         r"/*": {
             "origins": ["http://localhost:5173", "http://127.0.0.1:5173"],
             "methods": ["GET", "POST", "OPTIONS"],
-            "allow_headers": ["Content-Type"]
+            "allow_headers": ["Content-Type", "Authorization"]
         }
     })
     logging.info(f"✓ CORS configured for React frontend in {(time.time()-cors_start)*1000:.2f}ms")
+
+    # JWT initialization
+    jwt_start = time.time()
+    jwt.init_app(app)
+    logging.info(f"✓ JWT initialized in {(time.time()-jwt_start)*1000:.2f}ms")
 
     # Database initialization
     with app.app_context():

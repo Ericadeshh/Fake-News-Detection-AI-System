@@ -1,34 +1,11 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
-import axios from "axios";
-
-interface User {
-  id: number;
-  username: string;
-  is_admin: boolean;
-  created_at: string;
-}
-
-interface AuthResponse {
-  token: string;
-  user: User;
-}
-
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (username: string, password: string) => Promise<void>;
-  signup: (username: string, password: string) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isAdmin: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import React, { useState, useEffect } from "react";
+import type { AuthContextType } from "./AuthTypes";
+import { AuthContext } from "./AuthTypes";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthContextType["user"]>(null);
   const [token, setToken] = useState<string | null>(
     localStorage.getItem("token")
   );
@@ -38,11 +15,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const initializeAuth = async () => {
       if (token) {
         try {
-          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-          const response = await axios.get<{ user: User }>(
-            "http://localhost:5000/me"
-          );
-          setUser(response.data.user);
+          const response = await fetch("http://localhost:5000/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (response.status === 401) {
+            logout();
+            return;
+          }
+          if (!response.ok) throw new Error("Failed to fetch user");
+          const data: { user: AuthContextType["user"] } = await response.json();
+          setUser(data.user);
           setIsAuthenticated(true);
         } catch (error) {
           console.error("Auth initialization failed:", error);
@@ -55,18 +39,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await axios.post<AuthResponse>(
-        "http://localhost:5000/login",
-        {
-          username,
-          password,
-        }
-      );
-      const { token: authToken, user: authUser } = response.data;
-      localStorage.setItem("token", authToken);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-      setToken(authToken);
-      setUser(authUser);
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok) throw new Error("Login failed: Invalid credentials");
+      const data: { token: string; user: AuthContextType["user"] } =
+        await response.json();
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      setUser(data.user);
       setIsAuthenticated(true);
     } catch {
       throw new Error("Login failed: Invalid credentials");
@@ -75,18 +60,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const signup = async (username: string, password: string) => {
     try {
-      const response = await axios.post<AuthResponse>(
-        "http://localhost:5000/signup",
-        {
-          username,
-          password,
-        }
-      );
-      const { token: authToken, user: authUser } = response.data;
-      localStorage.setItem("token", authToken);
-      axios.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-      setToken(authToken);
-      setUser(authUser);
+      const response = await fetch("http://localhost:5000/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+      if (!response.ok)
+        throw new Error("Signup failed: Username may already exist");
+      const data: { token: string; user: AuthContextType["user"] } =
+        await response.json();
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+      setUser(data.user);
       setIsAuthenticated(true);
     } catch {
       throw new Error("Signup failed: Username may already exist");
@@ -95,7 +82,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -110,13 +96,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
     </AuthContext.Provider>
   );
-};
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 };
