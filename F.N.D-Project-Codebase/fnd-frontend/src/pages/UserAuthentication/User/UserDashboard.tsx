@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "../context/useAuth";
+import { useAuth } from "../context/userAuth";
 import styles from "./UserDashboard.module.css";
 
 const UserDashboard: React.FC = () => {

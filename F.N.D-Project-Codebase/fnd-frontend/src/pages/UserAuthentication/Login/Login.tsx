@@ -1,62 +1,92 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
-const LoginForm = () => {
-  const [username, setUsername] = useState("");
+const Login = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+    setError("");
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem("token", data.token);
-        navigate(data.user.is_admin ? "/admin-dashboard" : "/user-dashboard");
-      } else {
-        alert("Login failed");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed");
+    try {
+      const response = await fetch(
+        isAdmin
+          ? "http://localhost:5000/admin-login"
+          : "http://localhost:5000/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Login failed");
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate(data.user.isAdmin ? "/Admin/AdminDashboard" : "/UserDashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to login");
     }
   };
 
   return (
-    <div className={styles.authContainer}>
-      <h2 className={styles.authHeading}>FND System Login</h2>
-      <form onSubmit={handleSubmit} className={styles.authForm}>
+    <div className={styles.loginContainer}>
+      <form onSubmit={handleSubmit} className={styles.loginForm}>
+        <h2>{isAdmin ? "Admin Login" : "User Login"}</h2>
+
+        {error && <div className={styles.error}>{error}</div>}
+
         <div className={styles.formGroup}>
-          <label>Username</label>
           <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            id="email"
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
+          <label htmlFor="email">Email</label>
         </div>
+
         <div className={styles.formGroup}>
-          <label>Password</label>
           <input
+            id="password"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <label htmlFor="password">Password</label>
         </div>
-        <button type="submit" className={styles.authButton}>
+
+        <div className={styles.adminToggle}>
+          <label>
+            <input
+              type="checkbox"
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)}
+            />
+            Login as Admin
+          </label>
+        </div>
+
+        <button type="submit" className={styles.loginButton}>
           Login
         </button>
+
+        <div className={styles.signupLink}>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </div>
       </form>
     </div>
   );
 };
 
-export default LoginForm;
+export default Login;

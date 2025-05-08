@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "./header.module.css";
 import { IoMenu } from "react-icons/io5";
@@ -9,9 +9,25 @@ import { IoCloseSharp, IoChevronForward } from "react-icons/io5";
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const projectsRef = useRef<HTMLLIElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Add useEffect to check authentication status
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setIsAuthenticated(!!user);
+  }, [location]); // Re-check auth status when location changes
+
+  // Add logout handler
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
+    navigate("/");
+    closeMobileMenu();
+  };
 
   // Animation variants
   const containerVariants = {
@@ -200,6 +216,34 @@ const Header: React.FC = () => {
           </Link>
         </motion.li>
       ))}
+
+      {!isAuthenticated ? (
+        <>
+          <motion.li variants={itemVariants}>
+            <Link to="/login" className={styles.link} onClick={closeMobileMenu}>
+              Login
+            </Link>
+          </motion.li>
+          <motion.li variants={itemVariants}>
+            <Link
+              to="/signup"
+              className={styles.link}
+              onClick={closeMobileMenu}
+            >
+              Sign Up
+            </Link>
+          </motion.li>
+        </>
+      ) : (
+        <motion.li variants={itemVariants}>
+          <p
+            onClick={handleLogout}
+            className={`${styles.link} ${styles.logoutButton}`}
+          >
+            Logout
+          </p>
+        </motion.li>
+      )}
     </motion.ul>
   );
 

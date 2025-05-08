@@ -49,3 +49,7 @@ class Config:
     # Performance settings
     MAX_TEXT_LENGTH = 5000  # characters
     PREDICTION_TIMEOUT = 30  # seconds
+    
+    # config.py (add to Config class)
+    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@fnd.com')
+    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin_123')
