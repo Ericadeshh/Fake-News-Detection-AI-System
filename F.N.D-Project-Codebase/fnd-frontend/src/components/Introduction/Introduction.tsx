@@ -140,7 +140,7 @@ const Introduction = () => {
         {/* Original Subtitle */}
         <AnimatePresence>
           {subtitleVisible && (
-            <motion.div
+            <motion.p
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ type: "spring", stiffness: 100 }}
@@ -150,7 +150,7 @@ const Introduction = () => {
               authentication combining
               <strong> NLP analysis</strong> and <strong>deep learning</strong>
               <div className={styles.fnd_title}></div>
-            </motion.div>
+            </motion.p>
           )}
         </AnimatePresence>
 

@@ -1,3 +1,4 @@
+# Updated config.py
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -20,11 +21,6 @@ class Config:
         'pool_size': 10,
         'max_overflow': 20
     }
-    
-    # JWT configuration
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', SECRET_KEY)
-    JWT_ACCESS_TOKEN_EXPIRES = 3600  # 1 hour
-    JWT_TOKEN_LOCATION = ['headers']
     
     # Model configuration
     MODEL_PATH = os.getenv('MODEL_PATH', './saved_model')
@@ -49,7 +45,3 @@ class Config:
     # Performance settings
     MAX_TEXT_LENGTH = 5000  # characters
     PREDICTION_TIMEOUT = 30  # seconds
-    
-    # config.py (add to Config class)
-    ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@fnd.com')
-    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'admin_123')

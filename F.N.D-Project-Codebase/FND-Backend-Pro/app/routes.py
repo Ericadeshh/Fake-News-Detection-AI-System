@@ -1,12 +1,12 @@
 import sys
 import os
-from flask import Blueprint, request, jsonify, Response, current_app
+from flask import Blueprint, request, jsonify, Response
 from bs4 import BeautifulSoup  # type: ignore
 import requests  # type: ignore
 import PyPDF2
 import docx
 import io
-from app.models import Conversation,User
+from app.models import Conversation
 from app import db
 from app.ai_service import ai_service
 import logging
@@ -427,102 +427,3 @@ def recent_activity_stream():
     response.headers['Cache-Control'] = 'no-cache'
     response.headers['X-Accel-Buffering'] = 'no'
     return response
-
-
-@bp.route('/signup', methods=['POST', 'OPTIONS'])
-def signup():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    try:
-        data = request.get_json()
-        required_fields = ['email', 'password', 'fullName']
-        if not all(data.get(field) for field in required_fields):
-            return jsonify({'error': 'Missing required fields'}), 400
-
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'error': 'Email already exists'}), 400
-
-        new_user = User(
-            email=data['email'],
-            full_name=data['fullName'],
-            phone=data.get('phone'),
-            is_admin=False
-        )
-        new_user.set_password(data['password'])
-        db.session.add(new_user)
-        db.session.commit()
-
-        return jsonify({
-            'message': 'User created successfully',
-            'userId': new_user.id
-        }), 201
-
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(f"Signup error: {str(e)}")
-        return jsonify({'error': 'Internal server error'}), 500
-
-@bp.route('/login', methods=['POST', 'OPTIONS'])
-def login():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    try:
-        data = request.get_json()
-        email = data.get('email')
-        password = data.get('password')
-
-        user = User.query.filter_by(email=email).first()
-        if not user or not user.check_password(password):
-            return jsonify({'error': 'Invalid credentials'}), 401
-
-        return jsonify({
-            'message': 'Login successful',
-            'user': {
-                'id': user.id,
-                'email': user.email,
-                'isAdmin': user.is_admin
-            }
-        })
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@bp.route('/admin-login', methods=['POST', 'OPTIONS'])
-def admin_login():
-    if request.method == 'OPTIONS':
-        return _build_cors_preflight_response()
-    
-    try:
-        data = request.get_json()
-        # Get admin credentials from environment
-        admin_email = current_app.config.get('ADMIN_EMAIL')
-        admin_password = current_app.config.get('ADMIN_PASSWORD')
-
-        if data.get('email') != admin_email or data.get('password') != admin_password:
-            return jsonify({'error': 'Invalid admin credentials'}), 401
-
-        # Create or get admin user
-        admin = User.query.filter_by(email=admin_email).first()
-        if not admin:
-            admin = User(
-                email=admin_email,
-                full_name="Admin User",
-                is_admin=True
-            )
-            admin.set_password(admin_password)
-            db.session.add(admin)
-            db.session.commit()
-
-        return jsonify({
-            'message': 'Admin login successful',
-            'user': {
-                'id': admin.id,
-                'email': admin.email,
-                'isAdmin': True
-            }
-        })
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
