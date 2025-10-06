@@ -23,7 +23,10 @@ An AI-driven frontend system built with **React**, **TypeScript**, and **Vite**,
 
 - **React** – Frontend library  
 - **TypeScript** – Type-safe JavaScript  
-- **Vite** – Build tool and dev server  
+- **Vite** – Build tool and dev server
+- **Python** - core backend
+- **Flask** - server setup
+- **MySQL** - DB 
 - **CSS / Modules** – Styling and layout  
 - **Netlify** – Deployment platform  
 
